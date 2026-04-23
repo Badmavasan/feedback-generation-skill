@@ -1,0 +1,408 @@
+[
+  {
+    "id": 31,
+    "error_tag": "F_CALL_MISSING_TOURNER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 32,
+    "error_tag": "F_CALL_AVANCER_ERROR",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 33,
+    "error_tag": "F_CALL_MISSING_LEVER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 34,
+    "error_tag": "F_CALL_UNNECESSARY_DROITE",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 35,
+    "error_tag": "F_CALL_MISSING_POSER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 36,
+    "error_tag": "F_CALL_BAS_ERROR",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 37,
+    "error_tag": "F_CALL_HAUT_ERROR",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 38,
+    "error_tag": "F_CALL_UNNECESSARY_GAUCHE",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 39,
+    "error_tag": "F_CALL_UNNECESSARY_POSER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 40,
+    "error_tag": "F_CALL_UNNECESSARY_PRINT",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 41,
+    "error_tag": "F_CALL_UNNECESSARY_HAUT",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 42,
+    "error_tag": "F_CALL_MISSING_BAS",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 43,
+    "error_tag": "F_CALL_ARC_ERROR",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 44,
+    "error_tag": "F_CALL_UNNECESSARY_LEVER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 45,
+    "error_tag": "F_CALL_UNNECESSARY_TOURNER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 46,
+    "error_tag": "F_CALL_MISSING_HAUT",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 47,
+    "error_tag": "F_CALL_UNNECESSARY_BAS",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 48,
+    "error_tag": "F_CALL_PRINT_ERROR_ARG",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 49,
+    "error_tag": "F_CALL_TOURNER_ERROR",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 50,
+    "error_tag": "F_CALL_INCORRECT_POSITION_PRINT",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 51,
+    "error_tag": "F_CALL_GAUCHE_ERROR",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 52,
+    "error_tag": "F_CALL_UNNECESSARY_ARC",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 53,
+    "error_tag": "F_CALL_MISSING_AVANCER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 54,
+    "error_tag": "F_CALL_MISSING_DROITE",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 55,
+    "error_tag": "F_CALL_UNNECESSARY_AVANCER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 56,
+    "error_tag": "F_CALL_MISSING_GAUCHE",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 57,
+    "error_tag": "F_CALL_DROITE_ERROR",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 58,
+    "error_tag": "F_CALL_MISSING_PRINT",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 59,
+    "error_tag": "F_CALL_MISSING_ARC",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 60,
+    "error_tag": "F_CALL_INCORRECT_POSITION_HAUT",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 61,
+    "error_tag": "F_CALL_INCORRECT_POSITION_BAS",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 62,
+    "error_tag": "F_CALL_INCORRECT_POSITION_GAUCHE",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 63,
+    "error_tag": "F_CALL_INCORRECT_POSITION_DROITE",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 64,
+    "error_tag": "F_CALL_INCORRECT_POSITION_TOURNER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 65,
+    "error_tag": "F_CALL_INCORRECT_POSITION_AVANCER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 66,
+    "error_tag": "F_CALL_INCORRECT_POSITION_POSER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 67,
+    "error_tag": "F_CALL_INCORRECT_POSITION_LEVER",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 68,
+    "error_tag": "F_CALL_INCORRECT_POSITION_ARC",
+    "description": "error tag needs to be precisely defined",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 69,
+    "error_tag": "LO_FOR_UNNECESSARY",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 70,
+    "error_tag": "LO_BODY_MISSING_NOT_PRESENT_ANYWHERE",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 71,
+    "error_tag": "F_CALL_MISSING_COULEUR",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 72,
+    "error_tag": "LO_BODY_MISPLACED",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 73,
+    "error_tag": "LO_BODY_ERROR",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 74,
+    "error_tag": "LO_FOR_MISSING",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 75,
+    "error_tag": "LO_FOR_NUMBER_ITERATION_ERROR",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 76,
+    "error_tag": "F_CALL_COULEUR_ERROR",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 77,
+    "error_tag": "LO_FOR_MISPLACED",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 78,
+    "error_tag": "LO_FOR_NUMBER_ITERATION_ERROR_UNDER2",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 79,
+    "error_tag": "F_CALL_UNNECESSARY_COULEUR",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 80,
+    "error_tag": "EXP_ERROR_ASSIGNMENT_MISSING",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 81,
+    "error_tag": "EXP_ERROR_OPERATION",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 82,
+    "error_tag": "EXP_ERROR_ASSIGNMENT_MISPLACED",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 83,
+    "error_tag": "VA_DECLARATION_INITIALIZATION_ERROR",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 84,
+    "error_tag": "EXP_ERROR_ASSIGNMENT_UNNECESSARY",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 85,
+    "error_tag": "VA_EXPRESSION_ASSIGNMENT_TO_VARIABLE_ERROR",
+    "description": "",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 86,
+    "error_tag": "EXP_ERROR_OPERANDS",
+    "description": " ",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 87,
+    "error_tag": "EXP_ERROR_OPERATOR",
+    "description": " ",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 92,
+    "error_tag": "F_CALL_INCORRECT_POSITION_COULEUR",
+    "description": " ",
+    "status": "approved",
+    "project_id": 1
+  }
+]

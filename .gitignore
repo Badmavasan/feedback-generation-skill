@@ -1,0 +1,73 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ── Virtual environments ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Node / frontend ───────────────────────────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/build/
+.parcel-cache/
+.cache/
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+*.override.yml
+
+# ── Database / vector store ───────────────────────────────────────────────────
+backend/data/chroma/
+*.sqlite
+*.db
+
+# ── Environment & secrets ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pub
+
+# ── Logs & temp ───────────────────────────────────────────────────────────────
+*.log
+tmp/
+temp/
+.DS_Store
+Thumbs.db
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.suo
+*.user
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+
+# ── Claude Code & Anthropic tooling ──────────────────────────────────────────
+CLAUDE.md
+.claude/
+*.claude
+
+# ── Project session notes (not tracked in git) ────────────────────────────────
+CONTEXT.md

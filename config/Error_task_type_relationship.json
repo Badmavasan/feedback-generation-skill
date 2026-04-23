@@ -1,0 +1,548 @@
+[
+  {
+    "id": 82,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "EXP_ERROR_ASSIGNMENT_MISPLACED"
+  },
+  {
+    "id": 82,
+    "task_code": "EXP_1.1",
+    "task_name": "Produire une expression",
+    "error_tag": "EXP_ERROR_ASSIGNMENT_MISPLACED"
+  },
+  {
+    "id": 80,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "EXP_ERROR_ASSIGNMENT_MISSING"
+  },
+  {
+    "id": 80,
+    "task_code": "EXP_1.1",
+    "task_name": "Produire une expression",
+    "error_tag": "EXP_ERROR_ASSIGNMENT_MISSING"
+  },
+  {
+    "id": 84,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "EXP_ERROR_ASSIGNMENT_UNNECESSARY"
+  },
+  {
+    "id": 84,
+    "task_code": "EXP_1.1",
+    "task_name": "Produire une expression",
+    "error_tag": "EXP_ERROR_ASSIGNMENT_UNNECESSARY"
+  },
+  {
+    "id": 86,
+    "task_code": "EXP_1.1",
+    "task_name": "Produire une expression",
+    "error_tag": "EXP_ERROR_OPERANDS"
+  },
+  {
+    "id": 81,
+    "task_code": "EXP_1.1",
+    "task_name": "Produire une expression",
+    "error_tag": "EXP_ERROR_OPERATION"
+  },
+  {
+    "id": 87,
+    "task_code": "EXP_1.1",
+    "task_name": "Produire une expression",
+    "error_tag": "EXP_ERROR_OPERATOR"
+  },
+  {
+    "id": 43,
+    "task_code": "FO_4.1.3.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "error_tag": "F_CALL_ARC_ERROR"
+  },
+  {
+    "id": 32,
+    "task_code": "FO_4.1.3.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "error_tag": "F_CALL_AVANCER_ERROR"
+  },
+  {
+    "id": 36,
+    "task_code": "FO_4.1.2.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "error_tag": "F_CALL_BAS_ERROR"
+  },
+  {
+    "id": 76,
+    "task_code": "PR_1.2.1",
+    "task_name": "Modifier un programme P qui    réalise t proche de t'    en P' qui réalise t'",
+    "error_tag": "F_CALL_COULEUR_ERROR"
+  },
+  {
+    "id": 76,
+    "task_code": "FO_4.1.3.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "error_tag": "F_CALL_COULEUR_ERROR"
+  },
+  {
+    "id": 57,
+    "task_code": "FO_4.1.2.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "error_tag": "F_CALL_DROITE_ERROR"
+  },
+  {
+    "id": 51,
+    "task_code": "FO_4.1.2.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "error_tag": "F_CALL_GAUCHE_ERROR"
+  },
+  {
+    "id": 37,
+    "task_code": "FO_4.1.2.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "error_tag": "F_CALL_HAUT_ERROR"
+  },
+  {
+    "id": 68,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "F_CALL_INCORRECT_POSITION_ARC"
+  },
+  {
+    "id": 65,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "F_CALL_INCORRECT_POSITION_AVANCER"
+  },
+  {
+    "id": 61,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "F_CALL_INCORRECT_POSITION_BAS"
+  },
+  {
+    "id": 92,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "F_CALL_INCORRECT_POSITION_COULEUR"
+  },
+  {
+    "id": 63,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "F_CALL_INCORRECT_POSITION_DROITE"
+  },
+  {
+    "id": 62,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "F_CALL_INCORRECT_POSITION_GAUCHE"
+  },
+  {
+    "id": 60,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "F_CALL_INCORRECT_POSITION_HAUT"
+  },
+  {
+    "id": 67,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "F_CALL_INCORRECT_POSITION_LEVER"
+  },
+  {
+    "id": 66,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "F_CALL_INCORRECT_POSITION_POSER"
+  },
+  {
+    "id": 50,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "F_CALL_INCORRECT_POSITION_PRINT"
+  },
+  {
+    "id": 64,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "F_CALL_INCORRECT_POSITION_TOURNER"
+  },
+  {
+    "id": 59,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_MISSING_ARC"
+  },
+  {
+    "id": 59,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_MISSING_ARC"
+  },
+  {
+    "id": 53,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_MISSING_AVANCER"
+  },
+  {
+    "id": 53,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_MISSING_AVANCER"
+  },
+  {
+    "id": 42,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_MISSING_BAS"
+  },
+  {
+    "id": 42,
+    "task_code": "FO_4.1.2",
+    "task_name": "Appeler une fonction de déplacement",
+    "error_tag": "F_CALL_MISSING_BAS"
+  },
+  {
+    "id": 71,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_MISSING_COULEUR"
+  },
+  {
+    "id": 71,
+    "task_code": "PR_1.2.1",
+    "task_name": "Modifier un programme P qui    réalise t proche de t'    en P' qui réalise t'",
+    "error_tag": "F_CALL_MISSING_COULEUR"
+  },
+  {
+    "id": 71,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_MISSING_COULEUR"
+  },
+  {
+    "id": 54,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_MISSING_DROITE"
+  },
+  {
+    "id": 54,
+    "task_code": "FO_4.1.2",
+    "task_name": "Appeler une fonction de déplacement",
+    "error_tag": "F_CALL_MISSING_DROITE"
+  },
+  {
+    "id": 56,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_MISSING_GAUCHE"
+  },
+  {
+    "id": 56,
+    "task_code": "FO_4.1.2",
+    "task_name": "Appeler une fonction de déplacement",
+    "error_tag": "F_CALL_MISSING_GAUCHE"
+  },
+  {
+    "id": 46,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_MISSING_HAUT"
+  },
+  {
+    "id": 46,
+    "task_code": "FO_4.1.2",
+    "task_name": "Appeler une fonction de déplacement",
+    "error_tag": "F_CALL_MISSING_HAUT"
+  },
+  {
+    "id": 33,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_MISSING_LEVER"
+  },
+  {
+    "id": 33,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_MISSING_LEVER"
+  },
+  {
+    "id": 35,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_MISSING_POSER"
+  },
+  {
+    "id": 35,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_MISSING_POSER"
+  },
+  {
+    "id": 58,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_MISSING_PRINT"
+  },
+  {
+    "id": 58,
+    "task_code": "FO_4.1.1",
+    "task_name": "Appeler la fonction print",
+    "error_tag": "F_CALL_MISSING_PRINT"
+  },
+  {
+    "id": 31,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_MISSING_TOURNER"
+  },
+  {
+    "id": 31,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_MISSING_TOURNER"
+  },
+  {
+    "id": 48,
+    "task_code": "PR_1.2.1",
+    "task_name": "Modifier un programme P qui    réalise t proche de t'    en P' qui réalise t'",
+    "error_tag": "F_CALL_PRINT_ERROR_ARG"
+  },
+  {
+    "id": 48,
+    "task_code": "FO_4.1.1.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "error_tag": "F_CALL_PRINT_ERROR_ARG"
+  },
+  {
+    "id": 49,
+    "task_code": "FO_4.1.3.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "error_tag": "F_CALL_TOURNER_ERROR"
+  },
+  {
+    "id": 52,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_UNNECESSARY_ARC"
+  },
+  {
+    "id": 52,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_UNNECESSARY_ARC"
+  },
+  {
+    "id": 55,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_UNNECESSARY_AVANCER"
+  },
+  {
+    "id": 55,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_UNNECESSARY_AVANCER"
+  },
+  {
+    "id": 47,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_UNNECESSARY_BAS"
+  },
+  {
+    "id": 47,
+    "task_code": "FO_4.1.2",
+    "task_name": "Appeler une fonction de déplacement",
+    "error_tag": "F_CALL_UNNECESSARY_BAS"
+  },
+  {
+    "id": 79,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_UNNECESSARY_COULEUR"
+  },
+  {
+    "id": 79,
+    "task_code": "PR_1.2.1",
+    "task_name": "Modifier un programme P qui    réalise t proche de t'    en P' qui réalise t'",
+    "error_tag": "F_CALL_UNNECESSARY_COULEUR"
+  },
+  {
+    "id": 79,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_UNNECESSARY_COULEUR"
+  },
+  {
+    "id": 34,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_UNNECESSARY_DROITE"
+  },
+  {
+    "id": 34,
+    "task_code": "FO_4.1.2",
+    "task_name": "Appeler une fonction de déplacement",
+    "error_tag": "F_CALL_UNNECESSARY_DROITE"
+  },
+  {
+    "id": 38,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_UNNECESSARY_GAUCHE"
+  },
+  {
+    "id": 38,
+    "task_code": "FO_4.1.2",
+    "task_name": "Appeler une fonction de déplacement",
+    "error_tag": "F_CALL_UNNECESSARY_GAUCHE"
+  },
+  {
+    "id": 41,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_UNNECESSARY_HAUT"
+  },
+  {
+    "id": 41,
+    "task_code": "FO_4.1.2",
+    "task_name": "Appeler une fonction de déplacement",
+    "error_tag": "F_CALL_UNNECESSARY_HAUT"
+  },
+  {
+    "id": 44,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_UNNECESSARY_LEVER"
+  },
+  {
+    "id": 44,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_UNNECESSARY_LEVER"
+  },
+  {
+    "id": 39,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_UNNECESSARY_POSER"
+  },
+  {
+    "id": 39,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_UNNECESSARY_POSER"
+  },
+  {
+    "id": 40,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_UNNECESSARY_PRINT"
+  },
+  {
+    "id": 40,
+    "task_code": "FO_4.1.1",
+    "task_name": "Appeler la fonction print",
+    "error_tag": "F_CALL_UNNECESSARY_PRINT"
+  },
+  {
+    "id": 45,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "F_CALL_UNNECESSARY_TOURNER"
+  },
+  {
+    "id": 45,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "error_tag": "F_CALL_UNNECESSARY_TOURNER"
+  },
+  {
+    "id": 73,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "LO_BODY_ERROR"
+  },
+  {
+    "id": 73,
+    "task_code": "BO_1.1.1.1.3",
+    "task_name": "Déterminer l'itérable    pour une boucle bornée",
+    "error_tag": "LO_BODY_ERROR"
+  },
+  {
+    "id": 72,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "LO_BODY_MISPLACED"
+  },
+  {
+    "id": 72,
+    "task_code": "BO_1.1.1.1.3",
+    "task_name": "Déterminer l'itérable    pour une boucle bornée",
+    "error_tag": "LO_BODY_MISPLACED"
+  },
+  {
+    "id": 70,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "LO_BODY_MISSING_NOT_PRESENT_ANYWHERE"
+  },
+  {
+    "id": 70,
+    "task_code": "BO_1.1.1.1.3",
+    "task_name": "Déterminer l'itérable    pour une boucle bornée",
+    "error_tag": "LO_BODY_MISSING_NOT_PRESENT_ANYWHERE"
+  },
+  {
+    "id": 77,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "error_tag": "LO_FOR_MISPLACED"
+  },
+  {
+    "id": 74,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "LO_FOR_MISSING"
+  },
+  {
+    "id": 74,
+    "task_code": "BO_1.1.1.1",
+    "task_name": "Concevoir une boucle bornée",
+    "error_tag": "LO_FOR_MISSING"
+  },
+  {
+    "id": 75,
+    "task_code": "BO_1.1.1.1.2",
+    "task_name": "Déterminer le nombre  d'itérations à réaliser  pour une boucle bornée",
+    "error_tag": "LO_FOR_NUMBER_ITERATION_ERROR"
+  },
+  {
+    "id": 78,
+    "task_code": "BO_1.1.1.1.2",
+    "task_name": "Déterminer le nombre  d'itérations à réaliser  pour une boucle bornée",
+    "error_tag": "LO_FOR_NUMBER_ITERATION_ERROR_UNDER2"
+  },
+  {
+    "id": 69,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "error_tag": "LO_FOR_UNNECESSARY"
+  },
+  {
+    "id": 83,
+    "task_code": "VA_1.1.1",
+    "task_name": "Déclarer une variable ",
+    "error_tag": "VA_DECLARATION_INITIALIZATION_ERROR"
+  },
+  {
+    "id": 85,
+    "task_code": "VA_1.2.2",
+    "task_name": "Affecter la valeur d'une  expression à une variable",
+    "error_tag": "VA_EXPRESSION_ASSIGNMENT_TO_VARIABLE_ERROR"
+  }
+]

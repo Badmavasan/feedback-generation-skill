@@ -1,0 +1,1100 @@
+[
+  {
+    "platform_id": "algopython",
+    "name": "AL.1",
+    "description": "Produire ou modifier un algorithme...",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2",
+    "description": "Analyser un algorithme ..",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1",
+    "description": "Produire un algorithme",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.2",
+    "description": "Modifier un algorithme",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1",
+    "description": "Analyser un algorithme sans se référer    à une tâche particulière",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.2",
+    "description": "Analyser un algorithme en référence    à une tâche t qu'il doit réaliser",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1",
+    "description": "Concevoir un algorithme permettant    de réaliser une tâche t",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.2.1",
+    "description": "Modifier un algorithme qui réalise t'    en algorithme qui réalise t",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.2.2",
+    "description": "Modifier un algorithme existant pour    répondre à des contraintes particulières",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.1",
+    "description": "Déterminer la tâche t    réalisée par un algorithme",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.2",
+    "description": "Comprendre le fonctionnement d'un algorithme",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.3",
+    "description": "Déterminer la complexité algorithmique",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.4",
+    "description": "Prouver la terminaison",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.2.1",
+    "description": "Vérifier si un algorithme    réalise une tâche t donnée",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.2.2",
+    "description": "Prouver la correction",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.2",
+    "description": "Décomposer la tâche t en sous tâches",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.3",
+    "description": "Déterminer la structure globale de l'algo permettant de réaliser la tâche t en articulant toutes les sous-tâches",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.4",
+    "description": "Concevoir la structure de l'algorithme relatif à chaque ti",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.2.2.1",
+    "description": "Modifier le registre de représentation de l'algorithme",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.2.2.2",
+    "description": "Introduire une structure de contrôle imposée",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.2.2.3",
+    "description": "Réduire la complexité algorithmique",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.2.1",
+    "description": "Identifier les structures de données utilisées",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.2.2",
+    "description": "Comprendre ce que réalise une instruction",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.2.3",
+    "description": "Comprendre ce que réalise une séquence d'instructions",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.2.1",
+    "description": "Identifier les données en jeu",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.2.2",
+    "description": "Déterminer les structures de données permettant de représenter les données en jeu",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.2.3",
+    "description": "Décomposer la tâche t en sous-tâches t1...tn",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.4.1",
+    "description": "Déterminer les instructions (affectations et structures de contrôle)",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.4.2",
+    "description": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.2.2.1",
+    "description": "Déterminer de quelle instruction il s'agit (affection, conditionnelle, boucle)",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.2.2.2",
+    "description": "Déterminer les caractéristiques de l'instruction",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.2.3.1",
+    "description": "Déterminer la valeur d’une ou plusieurs variables    à l’issue d’une séquence d’instructions",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.2.3.2",
+    "description": "Déterminer la branche  réalisée (peut être ensemble vide) pour chaque IC",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.2.1.2.3.3",
+    "description": "Déterminer si on rentre  ou non dans chaque boucle",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.4.1.1",
+    "description": "Déterminer les structures de contrôle",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.4.1.2",
+    "description": "Déterminer les variables de travail",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.4.1.3",
+    "description": "Déterminer les fonctions à définir",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.4.1.4",
+    "description": "Déterminer les appels de fonctions à effectuer",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.4.1.4.1",
+    "description": "Identifier le nom de la fonction à appeler",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.4.1.4.2",
+    "description": "Identifier les paramètres de la fonction (nombre, ordre, types, etc)",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.4.1.4.3",
+    "description": "Choisir les valeurs à affecter aux paramètres (les arguments)",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "AL.1.1.1.4.1.4.4",
+    "description": "Affecter, le cas échéant, le ou les retours de la fonction à une variable",
+    "series": "AL"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1",
+    "description": "Produire ou modifier un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.2",
+    "description": "Analyser un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3",
+    "description": "Mettre au point un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.1",
+    "description": "Produire un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2",
+    "description": "Modifier un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.2.1",
+    "description": "Analyser un programme sans se référer    à une tâche particulière",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.2.2",
+    "description": "Analyser un programme en référence    à une tâche t qu'il doit réaliser",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.1",
+    "description": "Exécuter un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.2",
+    "description": "Identifier les erreurs dans un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.3",
+    "description": "Tester un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.4",
+    "description": "Corriger les erreurs d'un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.1.2",
+    "description": "Implémenter un algorithme dans    un langage de programmation",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.1",
+    "description": "Modifier un programme P qui    réalise t proche de t'    en P' qui réalise t'",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.2",
+    "description": "Améliorer un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.3",
+    "description": "Compléter un programme P    qui contient des trous",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.4",
+    "description": "Modifier un programme P pour répondre    à des contraintes particulières (utilisation    ou interdiction d'une structure, nombre de lignes...)",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.2.1.1",
+    "description": "Déterminer la tâche t    réalisée par un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.2.1.2",
+    "description": "Comprendre le fonctionnement    d'un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.2.2.1",
+    "description": "Vérifier si un programme    réalise une tâche t donnée",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.2.1",
+    "description": "Analyser les messages    d'erreur de la console",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.2.2",
+    "description": "Analyser les résulats des tests",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.3.1",
+    "description": "Construire un jeu de tests",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.3.2",
+    "description": "Evaluer ce que réalise le programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.4.1",
+    "description": "Corriger les erreurs syntaxiques",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.4.2",
+    "description": "Corriger les erreurs non syntaxiques",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.1.2.1",
+    "description": "Utiliser la syntaxe du langage pour écrire le code",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.1.2.2",
+    "description": "Utiliser la grammaire du langage pour écrire le code",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.1.2.3",
+    "description": "Appeler les librairies nécessaires",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.1.2.4",
+    "description": "Appeler les fonction(s) nécessaire(s)",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.1.2.5",
+    "description": "Commenter le code produit",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.2.1",
+    "description": "Optimiser un programme",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.2.2",
+    "description": "Faciliter la maintenance",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.2.1.1",
+    "description": "Repérer une exception",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.2.1.2",
+    "description": "Identifier les types d'erreur",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.3.1.1",
+    "description": "Construire un jeu de tests unitaires",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.3.1.2",
+    "description": "Construire un jeu de tests construit selon    une méthode non experte ou sans méthode",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.3.2.1",
+    "description": "Réaliser des tests de manière automatisée (basés sur un jeu de tests unitaires)",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.3.2.2",
+    "description": "Réaliser des tests par exécutions successives",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.1.2.4.1",
+    "description": "Identifier le nom de la fonction à appeler",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.1.2.4.2",
+    "description": "Identifier les paramètres de la fonction (nombre, ordre, types, etc)",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.1.2.4.3",
+    "description": "Choisir les valeurs à affecter aux paramètres (les arguments)",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.1.2.4.4",
+    "description": "Affecter, le cas échéant, le ou les retours de la fonction à une variable",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.2.1.1",
+    "description": "Utiliser des fonctions déjà existantes",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.2.1.2",
+    "description": "Exploiter des librairies",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.2.1.3",
+    "description": "Exploiter la modularité",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.2.2.1",
+    "description": "Améliorer la lisibilité",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.2.2.2",
+    "description": "Eviter la redondance",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.1.2.2.2.3",
+    "description": "Commenter un code existant",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.3.2.2.1",
+    "description": "Réaliser des tests \"aléatoires\"",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "PR.3.3.2.2.2",
+    "description": "Réaliser des tests basés sur un jeu de tests construit selon    une méthode non experte ou sans méthode",
+    "series": "PR"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1",
+    "description": "Produire ou modifier une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.2",
+    "description": "Analyser",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.3",
+    "description": "Mettre au point une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.4",
+    "description": "Utiliser une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.1",
+    "description": "Produire une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.2",
+    "description": "Modifier une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.2.1",
+    "description": "Identifier le nom d'une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.2.2",
+    "description": "Identifier les paramètres d'une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.2.3",
+    "description": "Déterminer la tâche t réalisée par une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.3.1",
+    "description": "Appeler une fonction pour la tester",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.4.1",
+    "description": "Appeler une fonction native",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.1.1",
+    "description": "Définir une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.2.1",
+    "description": "Ajouter ou supprimer des paramètres à une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.2.2",
+    "description": "Ajouter ou supprimer des valeurs retournées par une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.2.3",
+    "description": "Modifier le corps d'une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.2.4",
+    "description": "Compléter le corps d'une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.2.3.1",
+    "description": "Identifier si la fonction retourne une (ou des) valeur(s) ou non",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.4.1.1",
+    "description": "Appeler la fonction print",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.1.1.2",
+    "description": "Déterminer les paramètres (noms, types, valeurs par défaut) d'une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.1.1.3",
+    "description": "Déterminer les préconditions d'exécution (par exple : tableau trié dans une recherche dichotomique...) d'une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.1.1.4",
+    "description": "Déterminer, le cas échéant, les éléments à retourner par une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.1.1.5",
+    "description": "Rédiger les spécifications d'une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.1.1.1.6",
+    "description": "Produire le corps d'une fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.4.1.2",
+    "description": "Appeler une fonction de déplacement",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.4.1.3",
+    "description": "Appeler une fonction de tracé",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.4.1.1.1",
+    "description": "Choisir l’argument avec lequel appeler la fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.4.1.2.1",
+    "description": "Choisir l’argument avec lequel appeler la fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "FO.4.1.3.1",
+    "description": "Choisir l’argument avec lequel appeler la fonction",
+    "series": "FO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1",
+    "description": "Produire",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.2",
+    "description": "Analyser",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.1",
+    "description": "Produire ou modifier une boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.2",
+    "description": "Produire ou modifier une boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.2.1",
+    "description": "Analyser une boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.2.2",
+    "description": "Analyser une boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.1.1",
+    "description": "Produire une boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.1.2",
+    "description": "Modifier une boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.2.1",
+    "description": "Produire une boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.2.2",
+    "description": "Modifier une boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.2.1.1",
+    "description": "Identifier les instructions  exécutées à chaque itération  dans une boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.2.1.2",
+    "description": "Identifier l'expression booléenne  qui détermine la condition d'arrêt  d'une boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.2.1.3",
+    "description": "Déterminer si la condition d'arrêt  d'une boucle non bornée peut être réalisée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.2.2.1",
+    "description": "Identifier les instructions  exécutées à chaque itération  dans une boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.2.2.2",
+    "description": "Identifier l'itérable d'une boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.2.2.3",
+    "description": "Déterminer le  nombre d'itérations réalisées  par une boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.2.2.4",
+    "description": "Déterminer les valeurs  prises par l'itérateur d'une  boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.1.1.1",
+    "description": "Concevoir une boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.1.2.1",
+    "description": "Ajouter, supprimer, modifier  une ou des instructions  à une boucle bornée existante",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.1.2.2",
+    "description": "Modifier le nombre  d'itérations d'une boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.2.1.1",
+    "description": "Concevoir une  boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.2.2.1",
+    "description": "Ajouter, supprimer, modifier  une ou des instructions  à une boucle non bornée existante",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.2.2.2",
+    "description": "Modifier l'initialisation des variables    intervenant dans la condition d'arrêt    d'une boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.2.2.3",
+    "description": "Modifier l'expression booléenne  qui définit la condition d'arrêt  d'une boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.2.2.4",
+    "description": "Modifier les instructions qui    font évoluer la condition d'arrêt    d'une boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.1.1.1.2",
+    "description": "Déterminer le nombre  d'itérations à réaliser  pour une boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.1.1.1.3",
+    "description": "Déterminer l'itérable    pour une boucle bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.2.1.1.1",
+    "description": "Déterminer la  condition d'arrêt d'une  boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.2.1.1.2",
+    "description": "Déterminer les instructions  à exécuter à chaque itération  pour une boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "BO.1.2.1.1.2.1",
+    "description": "Déterminer l'instruction modifiant     la valeur de la condition d'arrêt    d'une boucle non bornée",
+    "series": "BO"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.1",
+    "description": "Produire ou modifier une variable",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.2",
+    "description": "Analyser une variable",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.1.1",
+    "description": "Produire une variable",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.1.2",
+    "description": "Modifier une variable",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.2.1",
+    "description": "Identifier le nom d'une variable",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.2.2",
+    "description": "Identifier le type d'une variable",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.2.3",
+    "description": "Identifier l'origine de l'affectation d'une variable  (utilisateur ou instruction du programme)",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.2.4",
+    "description": "Déterminer la portée d'une variable",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.2.5",
+    "description": "Déterminer si une variable utilisée a    effectivement été déclarée",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.1.1.2",
+    "description": "Initialiser une variable",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.1.2.1",
+    "description": "Modifier le nom d'une variable",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.1.2.2",
+    "description": "Affecter la valeur d'une  expression à une variable",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.1.2.2.1",
+    "description": "Déterminer si l'expression    utilise la variable",
+    "series": "VA"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1",
+    "description": "Produire ou modifier une expression",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.2",
+    "description": "Analyser une expression",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.1",
+    "description": "Produire une expression",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.2",
+    "description": "Modifier une expression",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.2.1",
+    "description": "Déterminer la valeur d'une expression",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.2.2",
+    "description": "Identifier les opérandes et les opérateurs d'une expression",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.2.3",
+    "description": "Déterminer le type d'une expression",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.2.4",
+    "description": "Déterminer la sémantique d'une l'expression    dans le contexte d'un programme",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.2.5",
+    "description": "Déterminer les valeurs retournées par un appel de fonction",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.1.1",
+    "description": "Identifier la finalité associée à l'expression :    définir une condition pour une boucle non    bornée ou une instruction conditionnelle ;    affecter sa valeur à une variable",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.2.1",
+    "description": "Modifier la combinaison opérandes - opérateurs     pour produire une nouvelle valeur",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.2.2",
+    "description": "Combiner différentes expressions pour en former une nouvelle",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.1.1.2",
+    "description": "Déterminer les opérandes",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.1.1.3",
+    "description": "Déterminer les opérateurs",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.1.1.4",
+    "description": "Déterminer la combinaison opérandes - opérateurs pour fournir la valeur attendue",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.1.1.2.1",
+    "description": "Déterminer les valeurs retournées    par un appel de fonction utilisé dans l'expression",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.1.1.2.2",
+    "description": "Déterminer les littéraux utilisés dans l'expression",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.1.1.2.3",
+    "description": "Déterminer les variables utilisées dans l'expression",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "EXP.1.1.1.4.1",
+    "description": "Formaliser l'expression dans le langage    à l'aide des opérandes et opérateurs",
+    "series": "EXP"
+  },
+  {
+    "platform_id": "algopython",
+    "name": "VA.1.1.1",
+    "description": "Déclarer une variable",
+    "series": "VA"
+  }
+]

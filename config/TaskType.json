@@ -1,0 +1,1283 @@
+[
+  {
+    "id": 290,
+    "task_code": "AL_1",
+    "task_name": "Produire ou modifier un algorithme...",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 291,
+    "task_code": "AL_2",
+    "task_name": "Analyser un algorithme ..",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 292,
+    "task_code": "AL_1.1",
+    "task_name": "Produire un algorithme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 293,
+    "task_code": "AL_1.2",
+    "task_name": "Modifier un algorithme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 294,
+    "task_code": "AL_2.1",
+    "task_name": "Analyser un algorithme sans se référer    à une tâche particulière",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 295,
+    "task_code": "AL_2.2",
+    "task_name": "Analyser un algorithme en référence    à une tâche t qu'il doit réaliser",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 296,
+    "task_code": "AL_1.1.1",
+    "task_name": "Concevoir un algorithme permettant    de réaliser une tâche t",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 297,
+    "task_code": "AL_1.2.1",
+    "task_name": "Modifier un algorithme qui réalise t'    en algorithme qui réalise t",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 298,
+    "task_code": "AL_1.2.2",
+    "task_name": "Modifier un algorithme existant pour    répondre à des contraintes particulières",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 299,
+    "task_code": "AL_2.1.1",
+    "task_name": "Déterminer la tâche t    réalisée par un algorithme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 300,
+    "task_code": "AL_2.1.2",
+    "task_name": "Comprendre le fonctionnement d'un algorithme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 301,
+    "task_code": "AL_2.1.3",
+    "task_name": "Déterminer la complexité algorithmique",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 302,
+    "task_code": "AL_2.1.4",
+    "task_name": "Prouver la terminaison",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 303,
+    "task_code": "AL_2.2.1",
+    "task_name": "Vérifier si un algorithme    réalise une tâche t donnée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 304,
+    "task_code": "AL_2.2.2",
+    "task_name": "Prouver la correction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 305,
+    "task_code": "AL_1.1.1.2",
+    "task_name": "Décomposer la tâche t en sous tâches",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 306,
+    "task_code": "AL_1.1.1.3",
+    "task_name": "Déterminer la structure globale de l'algo permettant de réaliser la tâche t en articulant toutes les sous-tâches",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 307,
+    "task_code": "AL_1.1.1.4",
+    "task_name": "Concevoir la structure de l'algorithme relatif à chaque ti",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 308,
+    "task_code": "AL_1.2.2.1",
+    "task_name": "Modifier le registre de représentation de l'algorithme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 309,
+    "task_code": "AL_1.2.2.2",
+    "task_name": "Introduire une structure de contrôle imposée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 310,
+    "task_code": "AL_1.2.2.3",
+    "task_name": "Réduire la complexité algorithmique",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 311,
+    "task_code": "AL_2.1.2.1",
+    "task_name": "Identifier les structures de données utilisées",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 312,
+    "task_code": "AL_2.1.2.2",
+    "task_name": "Comprendre ce que réalise une instruction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 313,
+    "task_code": "AL_2.1.2.3",
+    "task_name": "Comprendre ce que réalise une séquence d'instructions",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 314,
+    "task_code": "AL_1.1.1.2.1",
+    "task_name": "Identifier les données en jeu",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 315,
+    "task_code": "AL_1.1.1.2.2",
+    "task_name": "Déterminer les structures de données permettant de représenter les données en jeu",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 316,
+    "task_code": "AL_1.1.1.2.3",
+    "task_name": "Décomposer la tâche t en sous-tâches t1...tn",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 317,
+    "task_code": "AL_1.1.1.4.1",
+    "task_name": "Déterminer les instructions (affectations et structures de contrôle)",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 318,
+    "task_code": "AL_1.1.1.4.2",
+    "task_name": "Ordonner et articuler les instructions (séquentialité et imbrication)",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 319,
+    "task_code": "AL_2.1.2.2.1",
+    "task_name": "Déterminer de quelle instruction il s'agit (affection, conditionnelle, boucle)",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 320,
+    "task_code": "AL_2.1.2.2.2",
+    "task_name": "Déterminer les caractéristiques de l'instruction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 321,
+    "task_code": "AL_2.1.2.3.1",
+    "task_name": "Déterminer la valeur d’une ou plusieurs variables    à l’issue d’une séquence d’instructions",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 322,
+    "task_code": "AL_2.1.2.3.2",
+    "task_name": "Déterminer la branche  réalisée (peut être ensemble vide) pour chaque IC",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 323,
+    "task_code": "AL_2.1.2.3.3",
+    "task_name": "Déterminer si on rentre  ou non dans chaque boucle",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 324,
+    "task_code": "AL_1.1.1.4.1.1",
+    "task_name": "Déterminer les structures de contrôle",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 325,
+    "task_code": "AL_1.1.1.4.1.2",
+    "task_name": "Déterminer les variables de travail",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 326,
+    "task_code": "AL_1.1.1.4.1.3",
+    "task_name": "Déterminer les fonctions à définir",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 327,
+    "task_code": "AL_1.1.1.4.1.4",
+    "task_name": "Déterminer les appels de fonctions à effectuer",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 328,
+    "task_code": "AL_1.1.1.4.1.4.1",
+    "task_name": "Identifier le nom de la fonction à appeler",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 329,
+    "task_code": "AL_1.1.1.4.1.4.2",
+    "task_name": "Identifier les paramètres de la fonction (nombre, ordre, types, etc)",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 330,
+    "task_code": "AL_1.1.1.4.1.4.3",
+    "task_name": "Choisir les valeurs à affecter aux paramètres (les arguments)",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 331,
+    "task_code": "AL_1.1.1.4.1.4.4",
+    "task_name": "Affecter, le cas échéant, le ou les retours de la fonction à une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 333,
+    "task_code": "PR_1",
+    "task_name": "Produire ou modifier un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 334,
+    "task_code": "PR_2",
+    "task_name": "Analyser un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 335,
+    "task_code": "PR_3",
+    "task_name": "Mettre au point un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 336,
+    "task_code": "PR_1.1",
+    "task_name": "Produire un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 337,
+    "task_code": "PR_1.2",
+    "task_name": "Modifier un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 338,
+    "task_code": "PR_2.1",
+    "task_name": "Analyser un programme sans se référer    à une tâche particulière",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 339,
+    "task_code": "PR_2.2",
+    "task_name": "Analyser un programme en référence    à une tâche t qu'il doit réaliser",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 340,
+    "task_code": "PR_3.1",
+    "task_name": "Exécuter un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 341,
+    "task_code": "PR_3.2",
+    "task_name": "Identifier les erreurs dans un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 342,
+    "task_code": "PR_3.3",
+    "task_name": "Tester un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 343,
+    "task_code": "PR_3.4",
+    "task_name": "Corriger les erreurs d'un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 344,
+    "task_code": "PR_1.1.2",
+    "task_name": "Implémenter un algorithme dans    un langage de programmation",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 345,
+    "task_code": "PR_1.2.1",
+    "task_name": "Modifier un programme P qui    réalise t proche de t'    en P' qui réalise t'",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 346,
+    "task_code": "PR_1.2.2",
+    "task_name": "Améliorer un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 347,
+    "task_code": "PR_1.2.3",
+    "task_name": "Compléter un programme P    qui contient des trous",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 348,
+    "task_code": "PR_1.2.4",
+    "task_name": "Modifier un programme P pour répondre    à des contraintes particulières (utilisation    ou interdiction d'une structure, nombre de lignes...)",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 349,
+    "task_code": "PR_2.1.1",
+    "task_name": "Déterminer la tâche t    réalisée par un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 350,
+    "task_code": "PR_2.1.2",
+    "task_name": "Comprendre le fonctionnement    d'un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 351,
+    "task_code": "PR_2.2.1",
+    "task_name": "Vérifier si un programme    réalise une tâche t donnée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 352,
+    "task_code": "PR_3.2.1",
+    "task_name": "Analyser les messages    d'erreur de la console",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 353,
+    "task_code": "PR_3.2.2",
+    "task_name": "Analyser les résulats des tests",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 354,
+    "task_code": "PR_3.3.1",
+    "task_name": "Construire un jeu de tests",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 355,
+    "task_code": "PR_3.3.2",
+    "task_name": "Evaluer ce que réalise le programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 356,
+    "task_code": "PR_3.4.1",
+    "task_name": "Corriger les erreurs syntaxiques",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 357,
+    "task_code": "PR_3.4.2",
+    "task_name": "Corriger les erreurs non syntaxiques",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 358,
+    "task_code": "PR_1.1.2.1",
+    "task_name": "Utiliser la syntaxe du langage pour écrire le code",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 359,
+    "task_code": "PR_1.1.2.2",
+    "task_name": "Utiliser la grammaire du langage pour écrire le code",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 360,
+    "task_code": "PR_1.1.2.3",
+    "task_name": "Appeler les librairies nécessaires",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 361,
+    "task_code": "PR_1.1.2.4",
+    "task_name": "Appeler les fonction(s) nécessaire(s)",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 362,
+    "task_code": "PR_1.1.2.5",
+    "task_name": "Commenter le code produit",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 363,
+    "task_code": "PR_1.2.2.1",
+    "task_name": "Optimiser un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 364,
+    "task_code": "PR_1.2.2.2",
+    "task_name": "Faciliter la maintenance",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 365,
+    "task_code": "PR_3.2.1.1",
+    "task_name": "Repérer une exception",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 366,
+    "task_code": "PR_3.2.1.2",
+    "task_name": "Identifier les types d'erreur",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 367,
+    "task_code": "PR_3.3.1.1",
+    "task_name": "Construire un jeu de tests unitaires",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 368,
+    "task_code": "PR_3.3.1.2",
+    "task_name": "Construire un jeu de tests construit selon    une méthode non experte ou sans méthode",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 369,
+    "task_code": "PR_3.3.2.1",
+    "task_name": "Réaliser des tests de manière automatisée (basés sur un jeu de tests unitaires)",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 370,
+    "task_code": "PR_3.3.2.2",
+    "task_name": "Réaliser des tests par exécutions successives",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 371,
+    "task_code": "PR_1.1.2.4.1",
+    "task_name": "Identifier le nom de la fonction à appeler",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 372,
+    "task_code": "PR_1.1.2.4.2",
+    "task_name": "Identifier les paramètres de la fonction (nombre, ordre, types, etc)",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 373,
+    "task_code": "PR_1.1.2.4.3",
+    "task_name": "Choisir les valeurs à affecter aux paramètres (les arguments)",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 374,
+    "task_code": "PR_1.1.2.4.4",
+    "task_name": "Affecter, le cas échéant, le ou les retours de la fonction à une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 375,
+    "task_code": "PR_1.2.2.1.1",
+    "task_name": "Utiliser des fonctions déjà existantes",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 376,
+    "task_code": "PR_1.2.2.1.2",
+    "task_name": "Exploiter des librairies",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 377,
+    "task_code": "PR_1.2.2.1.3",
+    "task_name": "Exploiter la modularité",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 378,
+    "task_code": "PR_1.2.2.2.1",
+    "task_name": "Améliorer la lisibilité",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 379,
+    "task_code": "PR_1.2.2.2.2",
+    "task_name": "Eviter la redondance",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 380,
+    "task_code": "PR_1.2.2.2.3",
+    "task_name": "Commenter un code existant",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 381,
+    "task_code": "PR_3.3.2.2.1",
+    "task_name": "Réaliser des tests \"aléatoires\"",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 382,
+    "task_code": "PR_3.3.2.2.2",
+    "task_name": "Réaliser des tests basés sur un jeu de tests construit selon    une méthode non experte ou sans méthode",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 383,
+    "task_code": "FO_1",
+    "task_name": "Produire ou modifier une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 384,
+    "task_code": "FO_2",
+    "task_name": "Analyser",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 385,
+    "task_code": "FO_3",
+    "task_name": "Mettre au point une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 386,
+    "task_code": "FO_4",
+    "task_name": "Utiliser une fonction ",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 387,
+    "task_code": "FO_1.1",
+    "task_name": "Produire une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 388,
+    "task_code": "FO_1.2",
+    "task_name": "Modifier une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 389,
+    "task_code": "FO_2.1",
+    "task_name": "Identifier le nom d'une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 390,
+    "task_code": "FO_2.2",
+    "task_name": "Identifier les paramètres d'une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 391,
+    "task_code": "FO_2.3",
+    "task_name": "Déterminer la tâche t réalisée par une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 392,
+    "task_code": "FO_3.1",
+    "task_name": "Appeler une fonction pour la tester",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 393,
+    "task_code": "FO_4.1",
+    "task_name": "Appeler une fonction native",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 394,
+    "task_code": "FO_1.1.1",
+    "task_name": "Définir une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 395,
+    "task_code": "FO_1.2.1",
+    "task_name": "Ajouter ou supprimer des paramètres à une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 396,
+    "task_code": "FO_1.2.2",
+    "task_name": "Ajouter ou supprimer des valeurs retournées par une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 397,
+    "task_code": "FO_1.2.3",
+    "task_name": "Modifier le corps d'une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 398,
+    "task_code": "FO_1.2.4",
+    "task_name": "Compléter le corps d'une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 399,
+    "task_code": "FO_2.3.1",
+    "task_name": "Identifier si la fonction retourne une (ou des) valeur(s) ou non",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 400,
+    "task_code": "FO_4.1.1",
+    "task_name": "Appeler la fonction print",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 401,
+    "task_code": "FO_1.1.1.2",
+    "task_name": "Déterminer les paramètres (noms, types, valeurs par défaut) d'une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 402,
+    "task_code": "FO_1.1.1.3",
+    "task_name": "Déterminer les préconditions d'exécution (par exple : tableau trié dans une recherche dichotomique...) d'une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 403,
+    "task_code": "FO_1.1.1.4",
+    "task_name": "Déterminer, le cas échéant, les éléments à retourner par une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 404,
+    "task_code": "FO_1.1.1.5",
+    "task_name": "Rédiger les spécifications d'une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 405,
+    "task_code": "FO_1.1.1.6",
+    "task_name": "Produire le corps d'une fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 406,
+    "task_code": "FO_4.1.2",
+    "task_name": "Appeler une fonction de déplacement",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 407,
+    "task_code": "FO_4.1.3",
+    "task_name": "Appeler une fonction de tracé",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 408,
+    "task_code": "FO_4.1.1.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 409,
+    "task_code": "FO_4.1.2.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 410,
+    "task_code": "FO_4.1.3.1",
+    "task_name": "Choisir l’argument avec lequel appeler la fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 411,
+    "task_code": "BO_1",
+    "task_name": "Produire",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 412,
+    "task_code": "BO_2",
+    "task_name": "Analyser",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 413,
+    "task_code": "BO_1.1",
+    "task_name": "Produire ou modifier une boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 414,
+    "task_code": "BO_1.2",
+    "task_name": "Produire ou modifier une boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 415,
+    "task_code": "BO_2.1",
+    "task_name": "Analyser une boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 416,
+    "task_code": "BO_2.2",
+    "task_name": "Analyser une boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 417,
+    "task_code": "BO_1.1.1",
+    "task_name": "Produire une boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 418,
+    "task_code": "BO_1.1.2",
+    "task_name": "Modifier une boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 419,
+    "task_code": "BO_1.2.1",
+    "task_name": "Produire une boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 420,
+    "task_code": "BO_1.2.2",
+    "task_name": "Modifier une boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 421,
+    "task_code": "BO_2.1.1",
+    "task_name": "Identifier les instructions  exécutées à chaque itération  dans une boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 422,
+    "task_code": "BO_2.1.2",
+    "task_name": "Identifier l'expression booléenne  qui détermine la condition d'arrêt  d'une boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 423,
+    "task_code": "BO_2.1.3",
+    "task_name": "Déterminer si la condition d'arrêt  d'une boucle non bornée peut être réalisée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 424,
+    "task_code": "BO_2.2.1",
+    "task_name": "Identifier les instructions  exécutées à chaque itération  dans une boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 425,
+    "task_code": "BO_2.2.2",
+    "task_name": "Identifier l'itérable d'une boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 426,
+    "task_code": "BO_2.2.3",
+    "task_name": "Déterminer le  nombre d'itérations réalisées  par une boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 427,
+    "task_code": "BO_2.2.4",
+    "task_name": "Déterminer les valeurs  prises par l'itérateur d'une  boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 428,
+    "task_code": "BO_1.1.1.1",
+    "task_name": "Concevoir une boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 429,
+    "task_code": "BO_1.1.2.1",
+    "task_name": "Ajouter, supprimer, modifier  une ou des instructions  à une boucle bornée existante",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 430,
+    "task_code": "BO_1.1.2.2",
+    "task_name": "Modifier le nombre  d'itérations d'une boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 431,
+    "task_code": "BO_1.2.1.1",
+    "task_name": "Concevoir une  boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 432,
+    "task_code": "BO_1.2.2.1",
+    "task_name": "Ajouter, supprimer, modifier  une ou des instructions  à une boucle non bornée existante",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 433,
+    "task_code": "BO_1.2.2.2",
+    "task_name": "Modifier l'initialisation des variables    intervenant dans la condition d'arrêt    d'une boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 434,
+    "task_code": "BO_1.2.2.3",
+    "task_name": "Modifier l'expression booléenne  qui définit la condition d'arrêt  d'une boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 435,
+    "task_code": "BO_1.2.2.4",
+    "task_name": "Modifier les instructions qui    font évoluer la condition d'arrêt    d'une boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 436,
+    "task_code": "BO_1.1.1.1.2",
+    "task_name": "Déterminer le nombre  d'itérations à réaliser  pour une boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 437,
+    "task_code": "BO_1.1.1.1.3",
+    "task_name": "Déterminer l'itérable    pour une boucle bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 438,
+    "task_code": "BO_1.2.1.1.1",
+    "task_name": "Déterminer la  condition d'arrêt d'une  boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 439,
+    "task_code": "BO_1.2.1.1.2",
+    "task_name": "Déterminer les instructions  à exécuter à chaque itération  pour une boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 440,
+    "task_code": "BO_1.2.1.1.2.1",
+    "task_name": "Déterminer l'instruction modifiant     la valeur de la condition d'arrêt    d'une boucle non bornée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 441,
+    "task_code": "VA_1",
+    "task_name": "Produire ou modifier une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 442,
+    "task_code": "VA_2",
+    "task_name": "Analyser une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 443,
+    "task_code": "VA_1.1",
+    "task_name": "Produire une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 444,
+    "task_code": "VA_1.2",
+    "task_name": "Modifier une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 445,
+    "task_code": "VA_2.1",
+    "task_name": "Identifier le nom d'une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 446,
+    "task_code": "VA_2.2",
+    "task_name": "Identifier le type d'une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 447,
+    "task_code": "VA_2.3",
+    "task_name": "Identifier l'origine de l'affectation d'une variable  (utilisateur ou instruction du programme)",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 448,
+    "task_code": "VA_2.4",
+    "task_name": "Déterminer la portée d'une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 449,
+    "task_code": "VA_2.5",
+    "task_name": "Déterminer si une variable utilisée a    effectivement été déclarée",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 450,
+    "task_code": "VA_1.1.2",
+    "task_name": "Initialiser une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 451,
+    "task_code": "VA_1.2.1",
+    "task_name": "Modifier le nom d'une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 452,
+    "task_code": "VA_1.2.2",
+    "task_name": "Affecter la valeur d'une  expression à une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 453,
+    "task_code": "VA_1.2.2.1",
+    "task_name": "Déterminer si l'expression    utilise la variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 455,
+    "task_code": "EXP_1",
+    "task_name": "Produire ou modifier une expression",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 456,
+    "task_code": "EXP_2",
+    "task_name": "Analyser une expression",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 457,
+    "task_code": "EXP_1.1",
+    "task_name": "Produire une expression",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 458,
+    "task_code": "EXP_1.2",
+    "task_name": "Modifier une expression",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 459,
+    "task_code": "EXP_2.1",
+    "task_name": "Déterminer la valeur d'une expression",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 460,
+    "task_code": "EXP_2.2",
+    "task_name": "Identifier les opérandes et les opérateurs d'une expression",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 461,
+    "task_code": "EXP_2.3",
+    "task_name": "Déterminer le type d'une expression",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 462,
+    "task_code": "EXP_2.4",
+    "task_name": "Déterminer la sémantique d'une l'expression    dans le contexte d'un programme",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 463,
+    "task_code": "EXP_2.5",
+    "task_name": "Déterminer les valeurs retournées par un appel de fonction",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 464,
+    "task_code": "EXP_1.1.1",
+    "task_name": "Identifier la finalité associée à l'expression :    définir une condition pour une boucle non    bornée ou une instruction conditionnelle ;    affecter sa valeur à une variable",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 465,
+    "task_code": "EXP_1.2.1",
+    "task_name": "Modifier la combinaison opérandes - opérateurs     pour produire une nouvelle valeur",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 466,
+    "task_code": "EXP_1.2.2",
+    "task_name": "Combiner différentes expressions pour en former une nouvelle",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 467,
+    "task_code": "EXP_1.1.1.2",
+    "task_name": "Déterminer les opérandes",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 468,
+    "task_code": "EXP_1.1.1.3",
+    "task_name": "Déterminer les opérateurs",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 469,
+    "task_code": "EXP_1.1.1.4",
+    "task_name": "Déterminer la combinaison opérandes - opérateurs pour fournir la valeur attendue",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 470,
+    "task_code": "EXP_1.1.1.2.1",
+    "task_name": "Déterminer les valeurs retournées    par un appel de fonction utilisé dans l'expression",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 471,
+    "task_code": "EXP_1.1.1.2.2",
+    "task_name": "Déterminer les littéraux utilisés dans l'expression",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 472,
+    "task_code": "EXP_1.1.1.2.3",
+    "task_name": "Déterminer les variables utilisées dans l'expression",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 473,
+    "task_code": "EXP_1.1.1.4.1",
+    "task_name": "Formaliser l'expression dans le langage    à l'aide des opérandes et opérateurs",
+    "status": "approved",
+    "project_id": 1
+  },
+  {
+    "id": 474,
+    "task_code": "VA_1.1.1",
+    "task_name": "Déclarer une variable ",
+    "status": "approved",
+    "project_id": 1
+  }
+]
