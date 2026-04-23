@@ -13,12 +13,13 @@ from agents.gemini_agent import GeminiImageAgent
 from agents.student_simulator import StudentSimulator
 from agents.relevance_checker import RelevanceChecker
 from agents.coherence_checker import CoherenceChecker
+from agents.image_coherence_checker import ImageCoherenceChecker
 from feedback.gold import get_gold_examples
 from prompts.feedback import build_feedback_system_prompt, build_feedback_user_prompt
 from prompts.image import (
     build_annotation_plan_prompt,
     build_imagen_prompt,
-    build_verification_prompt,
+    load_reference_images,
 )
 from prompts.orchestrator import build_orchestrator_system, build_planning_prompt
 from feedback.xml_builder import build_xml_output
@@ -171,10 +172,11 @@ ORCHESTRATOR_TOOLS = [
                     "description": (
                         "Dict of characteristic → component result. "
                         "Each value: {"
-                        "  content: str, "
+                        "  content: str (text components only), "
                         "  type: 'text'|'image', "
                         "  iterations: int, "
-                        "  caption?: str, "
+                        "  caption?: str (image components), "
+                        "  image_url?: str (image components — server URL to the saved PNG), "
                         "  evaluation_notes?: str  (brief note on quality assessment)"
                         "}"
                     ),
@@ -201,6 +203,7 @@ class ClaudeOrchestrator:
         self._simulator = StudentSimulator()
         self._relevance = RelevanceChecker()
         self._coherence = CoherenceChecker()
+        self._img_coherence = ImageCoherenceChecker()
 
     async def run(
         self,
@@ -602,7 +605,16 @@ class ClaudeOrchestrator:
         base_image: bytes,
         ctx: dict,
     ) -> str:
+        import re
+        import uuid as _uuid
+        from pathlib import Path
+
         settings = get_settings()
+        exercise_type = (ctx.get("exercise") or {}).get("exercise_type", "design")
+
+        # Load reference images for few-shot style injection
+        reference_images = load_reference_images(exercise_type, max_count=2)
+
         system, user = build_annotation_plan_prompt(
             kc_name=ctx["kc_name"],
             kc_description=ctx["kc_description"],
@@ -611,19 +623,29 @@ class ClaudeOrchestrator:
             image_description=image_description,
             exercise=ctx.get("exercise"),
             error=ctx.get("error"),
+            reference_images=reference_images or None,
         )
-        plan_json = await self._gemini.generate(system, user)
+
+        plan_json = await self._gemini.generate(
+            system,
+            user,
+            reference_images=reference_images or None,
+            user_image=base_image,
+        )
         try:
             plan = json.loads(plan_json)
         except json.JSONDecodeError:
-            import re
             match = re.search(r'\{.*\}', plan_json, re.DOTALL)
-            plan = json.loads(match.group()) if match else {"annotations": [], "overall_caption": ""}
+            plan = json.loads(match.group()) if match else {
+                "annotations": [], "overall_caption": "", "loops": [], "decomposition_summary": ""
+            }
 
         annotations = plan.get("annotations", [])
         caption = plan.get("overall_caption", "")
+        loops = plan.get("loops", [])
+        decomposition_summary = plan.get("decomposition_summary", "")
 
-        imagen_prompt = build_imagen_prompt(annotations, caption)
+        imagen_prompt = build_imagen_prompt(annotations, caption, decomposition_summary)
         annotated_bytes = await self._gemini.annotate_image(base_image, imagen_prompt)
 
         best_bytes = annotated_bytes
@@ -631,8 +653,11 @@ class ClaudeOrchestrator:
         iterations = 1
 
         for _ in range(settings.image_max_iterations - 1):
-            verify_prompt = build_verification_prompt(annotations)
-            verdict = await self._gemini.verify_image(annotated_bytes, verify_prompt)
+            verdict = await self._img_coherence.check(
+                annotated_bytes=annotated_bytes,
+                decomposition_summary=decomposition_summary,
+                loops=loops,
+            )
             score = verdict.get("quality_score", 0.0)
 
             if score > best_score:
@@ -645,15 +670,22 @@ class ClaudeOrchestrator:
             issues = verdict.get("issues", [])
             refined_prompt = imagen_prompt + (
                 "\n\nFix these issues from the previous attempt:\n"
-                + "\n".join(f"- {i}" for i in issues)
+                + "\n".join(f"- {iss}" for iss in issues)
             )
             annotated_bytes = await self._gemini.annotate_image(base_image, refined_prompt)
             iterations += 1
 
+        # Save generated image to disk; return URL instead of embedding base64
+        images_dir = Path(settings.generated_images_dir)
+        images_dir.mkdir(parents=True, exist_ok=True)
+        image_id = str(_uuid.uuid4())
+        (images_dir / f"{image_id}.png").write_bytes(best_bytes)
+        image_url = f"/feedback-generation/api/feedback/images/{image_id}"
+
         return json.dumps({
             "characteristic": characteristic,
             "type": "image",
-            "content": base64.b64encode(best_bytes).decode(),
+            "image_url": image_url,
             "caption": caption,
             "iterations": iterations,
             "quality_score": best_score,

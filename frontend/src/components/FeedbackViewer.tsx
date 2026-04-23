@@ -5,7 +5,8 @@ interface ParsedComponent {
   characteristic: string
   type: string
   content?: string
-  imageData?: string
+  imageUrl?: string
+  imageData?: string   // legacy base64 fallback
   caption?: string
   iterations: number
   qualityScore?: number
@@ -31,7 +32,8 @@ function parseXML(xml: string): {
         characteristic: el.getAttribute('characteristic') || '',
         type: el.getAttribute('type') || 'text',
         content: el.querySelector('content')?.textContent || undefined,
-        imageData: el.querySelector('image_data')?.textContent || undefined,
+        imageUrl: el.querySelector('image_url')?.textContent || undefined,
+        imageData: el.querySelector('image_data')?.textContent || undefined,  // legacy
         caption: el.querySelector('caption')?.textContent || undefined,
         iterations: parseInt(el.querySelector('iterations')?.textContent || '1'),
         qualityScore: el.querySelector('quality_score')
@@ -226,10 +228,14 @@ export default function FeedbackViewer({ xml }: { xml: string }) {
 
                 {/* Component content */}
                 <div className="px-4 py-3" style={{ background: 'var(--bg-elevated)' }}>
-                  {comp.type === 'image' && comp.imageData ? (
+                  {comp.type === 'image' && (comp.imageUrl || comp.imageData) ? (
                     <div>
                       <img
-                        src={`data:image/png;base64,${comp.imageData}`}
+                        src={
+                          comp.imageUrl
+                            ? comp.imageUrl
+                            : `data:image/png;base64,${comp.imageData}`
+                        }
                         alt={comp.caption || 'Annotated screenshot'}
                         className="rounded-lg max-w-full border"
                         style={{ borderColor: 'var(--border)' }}

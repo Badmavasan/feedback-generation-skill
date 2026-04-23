@@ -11,6 +11,8 @@ Auth: admin JWT (Bearer) OR platform API key (X-API-Key header).
   - JWT admin  → platform_id must be supplied as a query param
   - API key    → platform_id is resolved from the key; query param ignored
 """
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict, Field
@@ -18,6 +20,7 @@ from typing import Literal, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.deps import get_caller, CallerContext, get_current_admin
+from core.config import get_settings
 from db.database import get_db
 from db.algopython_db import get_algopython_db
 from feedback.generator import generate_feedback
@@ -535,3 +538,25 @@ async def feedback_image(
         algopython_db=algopython_db,
     )
     return Response(content=xml, media_type="application/xml")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 5.  Generated image serving
+# ══════════════════════════════════════════════════════════════════════════════
+
+@router.get(
+    "/images/{image_id}",
+    summary="Serve a generated annotation image",
+    description="Returns the PNG file produced by the Gemini annotation agent.",
+    response_class=Response,
+    responses={200: {"content": {"image/png": {}}}},
+)
+async def serve_generated_image(image_id: str) -> Response:
+    settings = get_settings()
+    # Sanitise: image_id must be a plain UUID (no path traversal)
+    if "/" in image_id or "\\" in image_id or ".." in image_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid image ID.")
+    image_path = Path(settings.generated_images_dir) / f"{image_id}.png"
+    if not image_path.exists():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image not found.")
+    return Response(content=image_path.read_bytes(), media_type="image/png")

@@ -62,8 +62,7 @@ def build_xml_output(
         ET.SubElement(comp_el, "iterations").text = str(comp.get("iterations", 1))
 
         if comp.get("type") == "image":
-            # Image component — base64 content
-            ET.SubElement(comp_el, "image_data").text = comp.get("content", "")
+            ET.SubElement(comp_el, "image_url").text = comp.get("image_url", "")
             ET.SubElement(comp_el, "caption").text = comp.get("caption", "")
             if "quality_score" in comp:
                 ET.SubElement(comp_el, "quality_score").text = str(

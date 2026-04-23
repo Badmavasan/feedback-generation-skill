@@ -32,11 +32,21 @@ class GeminiImageAgent(BaseAgent):
         user_prompt: str,
         temperature: float = 0.4,
         max_tokens: int = 1024,
+        reference_images: list[bytes] | None = None,
+        user_image: bytes | None = None,
         **kwargs,
     ) -> str:
-        """Text generation via Gemini Flash (used for annotation planning)."""
+        """Text generation via Gemini Flash (used for annotation planning).
+
+        When reference_images are provided they are prepended to the content
+        as few-shot visual style examples before the user_prompt text.
+        When user_image is provided it is inserted between the references and
+        the text prompt so Gemini can see the actual image to annotate.
+        """
         import asyncio
+        import io
         import google.generativeai as genai
+        import PIL.Image
         settings = get_settings()
         self._get_client()  # ensure configured
 
@@ -44,12 +54,23 @@ class GeminiImageAgent(BaseAgent):
             model_name=settings.gemini_model,
             system_instruction=system_prompt,
         )
-        # google-generativeai has no native async — run in thread pool
+
+        # Build multimodal content list
+        content: list = []
+        if reference_images:
+            content.append("Style reference images (match this annotation style exactly):")
+            for ref_bytes in reference_images:
+                content.append(PIL.Image.open(io.BytesIO(ref_bytes)))
+        if user_image:
+            content.append("Exercise image to annotate:")
+            content.append(PIL.Image.open(io.BytesIO(user_image)))
+        content.append(user_prompt)
+
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(
             None,
             lambda: model.generate_content(
-                user_prompt,
+                content,
                 generation_config=genai.types.GenerationConfig(
                     temperature=temperature,
                     max_output_tokens=max_tokens,

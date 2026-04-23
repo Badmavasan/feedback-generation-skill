@@ -50,6 +50,10 @@ class Settings(BaseSettings):
     # Embedding model for RAG
     embedding_model: str = "paraphrase-multilingual-MiniLM-L12-v2"
 
+    # Image storage
+    generated_images_dir: str = "./data/generated_images"
+    reference_images_dir: str = "./data/reference_images"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
