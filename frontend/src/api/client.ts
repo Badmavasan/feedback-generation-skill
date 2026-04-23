@@ -8,7 +8,7 @@ import type {
 } from '../types'
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: '/feedback-generation/api',
   headers: { 'Content-Type': 'application/json' },
 })
 
