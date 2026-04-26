@@ -1,25 +1,28 @@
 """Claude orchestrator — plans generation, evaluates quality, regenerates, assembles XML."""
 import json
 import base64
+import logging
 import time
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 import anthropic
 
 from core.config import get_settings
 from core.agent_logger import log_prompt
 from agents.mistral_agent import MistralFeedbackAgent
-from agents.gemini_agent import GeminiImageAgent
 from agents.student_simulator import StudentSimulator
 from agents.relevance_checker import RelevanceChecker
 from agents.coherence_checker import CoherenceChecker
 from agents.image_coherence_checker import ImageCoherenceChecker
+from agents.claude_image_analyzer import ClaudeImageAnalyzer
 from feedback.gold import get_gold_examples
 from prompts.feedback import build_feedback_system_prompt, build_feedback_user_prompt
 from prompts.image import (
     build_annotation_plan_prompt,
+    build_claude_annotation_prompt,
     build_imagen_prompt,
-    load_reference_images,
 )
 from prompts.orchestrator import build_orchestrator_system, build_planning_prompt
 from feedback.xml_builder import build_xml_output
@@ -188,6 +191,94 @@ ORCHESTRATOR_TOOLS = [
 ]
 
 
+def _extract_last_json_object(text: str) -> dict:
+    """Find the last top-level {...} JSON object in text, even if preceded by reasoning prose."""
+    end = text.rfind("}")
+    if end == -1:
+        return {}
+    depth = 0
+    for i in range(end, -1, -1):
+        if text[i] == "}":
+            depth += 1
+        elif text[i] == "{":
+            depth -= 1
+            if depth == 0:
+                try:
+                    return json.loads(text[i:end + 1])
+                except json.JSONDecodeError:
+                    return {}
+    return {}
+
+
+def _rescue_truncated_json(text: str) -> dict:
+    """Close unclosed brackets in a truncated JSON string and try to parse."""
+    s = text.rstrip().rstrip(',')
+    open_braces = open_brackets = 0
+    in_string = escape_next = False
+    i = 0
+    while i < len(s):
+        ch = s[i]
+        if escape_next:
+            escape_next = False
+        elif ch == '\\' and in_string:
+            escape_next = True
+        elif ch == '"':
+            in_string = not in_string
+        elif not in_string:
+            if   ch == '{': open_braces   += 1
+            elif ch == '}': open_braces   -= 1
+            elif ch == '[': open_brackets += 1
+            elif ch == ']': open_brackets -= 1
+        i += 1
+    if open_braces <= 0 and open_brackets <= 0:
+        return {}
+    s += ']' * max(0, open_brackets) + '}' * max(0, open_braces)
+    try:
+        return json.loads(s)
+    except json.JSONDecodeError:
+        return {}
+
+
+def _extract_plan_json(text: str) -> dict:
+    """Extract the annotation plan (must contain 'drawings') from Claude's response.
+
+    Handles:
+    - JSON preceded by prose (looks for the { that opens the plan)
+    - Truncated responses (closes unclosed brackets and rescues partial drawings)
+    - Falls back to individual drawing objects if outer extraction fails
+    """
+    import re
+
+    # Strategy 1: find the { that immediately precedes '"drawings"' and parse outward
+    for m in re.finditer(r'"drawings"\s*:', text):
+        pos = m.start()
+        # Walk backwards up to 200 chars to find the opening {
+        for i in range(pos - 1, max(0, pos - 200), -1):
+            if text[i] == '{':
+                segment = text[i:]
+                # Try full parse
+                try:
+                    result = json.loads(segment)
+                    if "drawings" in result:
+                        return result
+                except json.JSONDecodeError:
+                    pass
+                # Try rescue (truncated mid-array)
+                rescued = _rescue_truncated_json(segment)
+                if rescued and "drawings" in rescued:
+                    logger.info("[extract_plan] rescued truncated response: %d drawings",
+                                len(rescued.get("drawings", [])))
+                    return rescued
+                break  # Only try the nearest {
+
+    # Strategy 2: standard last-object (may get an outer plan if not truncated)
+    plan = _extract_last_json_object(text)
+    if plan and "drawings" in plan:
+        return plan
+
+    return {}
+
+
 class ClaudeOrchestrator:
     """
     Orchestrator powered by Claude with tool use.
@@ -199,11 +290,11 @@ class ClaudeOrchestrator:
         self._settings = get_settings()
         self._client = anthropic.AsyncAnthropic(api_key=self._settings.anthropic_api_key)
         self._mistral = MistralFeedbackAgent()
-        self._gemini = GeminiImageAgent()
         self._simulator = StudentSimulator()
         self._relevance = RelevanceChecker()
         self._coherence = CoherenceChecker()
         self._img_coherence = ImageCoherenceChecker()
+        self._claude_analyzer = ClaudeImageAnalyzer()
 
     async def run(
         self,
@@ -225,6 +316,7 @@ class ClaudeOrchestrator:
         platform_config: dict | None = None,
         run_id: str | None = None,
         trace: TraceCollector | None = None,
+        decomposition_hint: str | None = None,
     ) -> str:
         """
         Orchestrate full generation with quality evaluation loop.
@@ -271,6 +363,7 @@ class ClaudeOrchestrator:
             error=error,
             live_context=live_context,
             text_max_iterations=settings.text_max_iterations,
+            has_base_image=base_image is not None,
         )
 
         # 3. Resolve exercise struct from RAG only when not already resolved from DB
@@ -296,6 +389,7 @@ class ClaudeOrchestrator:
             platform_context=platform_context,
             platform_config=platform_config,
             run_id=run_id,
+            decomposition_hint=decomposition_hint,
         )
 
         # Log planning step
@@ -427,28 +521,51 @@ class ClaudeOrchestrator:
                             notes="No base_image provided",
                         )
                     else:
-                        tc.start_timer("gemini_image")
-                        result_content = await self._run_image_generation(
-                            characteristic="with_example_related_to_exercise",
-                            image_description=tool_input.get("image_description", "a code screenshot"),
-                            base_image=base_image,
-                            ctx=shared_ctx,
-                        )
-                        gemini_ms = tc.elapsed_ms("gemini_image")
-                        img_result = json.loads(result_content)
-                        tc.log(
-                            agent="gemini",
-                            role="image",
-                            tool_name=tool_name,
-                            characteristic="with_example_related_to_exercise",
-                            verdict="accepted",
-                            output_data={
-                                "iterations": img_result.get("iterations"),
-                                "quality_score": img_result.get("quality_score"),
-                                "caption": img_result.get("caption"),
-                            },
-                            duration_ms=gemini_ms,
-                        )
+                        try:
+                            tc.start_timer("gemini_image")
+                            result_content = await self._run_image_generation(
+                                characteristic="with_example_related_to_exercise",
+                                image_description=tool_input.get("image_description", "a code screenshot"),
+                                base_image=base_image,
+                                ctx=shared_ctx,
+                            )
+                            gemini_ms = tc.elapsed_ms("gemini_image")
+                            img_result = json.loads(result_content)
+                            tc.log(
+                                agent="gemini",
+                                role="image",
+                                tool_name=tool_name,
+                                characteristic="with_example_related_to_exercise",
+                                verdict="accepted",
+                                output_data={
+                                    "iterations": img_result.get("iterations"),
+                                    "quality_score": img_result.get("quality_score"),
+                                    "caption": img_result.get("caption"),
+                                },
+                                duration_ms=gemini_ms,
+                            )
+                        except Exception as img_exc:
+                            import traceback as _tb
+                            logger.error(
+                                "[orchestrator] generate_image_feedback FAILED: %s\n%s",
+                                img_exc, _tb.format_exc(),
+                            )
+                            result_content = json.dumps({
+                                "error": str(img_exc),
+                                "fallback": False,
+                                "hint": (
+                                    "Image annotation failed. Check that exercise_id is valid, "
+                                    "exercise_type is 'robot', and the description contains a "
+                                    "<map>...</map> block."
+                                ),
+                            })
+                            tc.log(
+                                agent="gemini",
+                                role="image",
+                                tool_name=tool_name,
+                                verdict="error",
+                                notes=str(img_exc),
+                            )
 
                 # ── check_example_relevance ──────────────────────────────────
                 elif tool_name == "check_example_relevance":
@@ -605,88 +722,203 @@ class ClaudeOrchestrator:
         base_image: bytes,
         ctx: dict,
     ) -> str:
-        import re
         import uuid as _uuid
         from pathlib import Path
 
         settings = get_settings()
-        exercise_type = (ctx.get("exercise") or {}).get("exercise_type", "design")
+        exercise = ctx.get("exercise") or {}
+        exercise_type = (exercise.get("exercise_type") or (
+            "robot" if exercise.get("robot_map") else ""
+        )).lower()
+        decomposition_hint = ctx.get("decomposition_hint") or ""
 
-        # Load reference images for few-shot style injection
-        reference_images = load_reference_images(exercise_type, max_count=2)
-
-        system, user = build_annotation_plan_prompt(
-            kc_name=ctx["kc_name"],
-            kc_description=ctx["kc_description"],
-            characteristic=characteristic,
-            language=ctx["language"],
-            image_description=image_description,
-            exercise=ctx.get("exercise"),
-            error=ctx.get("error"),
-            reference_images=reference_images or None,
+        logger.info(
+            "[image_gen] exercise_id=%r exercise_type=%r robot_map=%s solutions=%d",
+            ctx.get("exercise_id"),
+            exercise_type,
+            (f"{exercise.get('robot_map',{}).get('rows')}×{exercise.get('robot_map',{}).get('cols')}"
+             if exercise.get("robot_map") else "MISSING"),
+            len(exercise.get("possible_solutions") or []),
         )
 
-        plan_json = await self._gemini.generate(
-            system,
-            user,
-            reference_images=reference_images or None,
-            user_image=base_image,
-        )
-        try:
-            plan = json.loads(plan_json)
-        except json.JSONDecodeError:
-            match = re.search(r'\{.*\}', plan_json, re.DOTALL)
-            plan = json.loads(match.group()) if match else {
-                "annotations": [], "overall_caption": "", "loops": [], "decomposition_summary": ""
-            }
-
-        annotations = plan.get("annotations", [])
-        caption = plan.get("overall_caption", "")
-        loops = plan.get("loops", [])
-        decomposition_summary = plan.get("decomposition_summary", "")
-
-        imagen_prompt = build_imagen_prompt(annotations, caption, decomposition_summary)
-        annotated_bytes = await self._gemini.annotate_image(base_image, imagen_prompt)
-
-        best_bytes = annotated_bytes
-        best_score = 0.0
-        iterations = 1
-
-        for _ in range(settings.image_max_iterations - 1):
-            verdict = await self._img_coherence.check(
-                annotated_bytes=annotated_bytes,
-                decomposition_summary=decomposition_summary,
-                loops=loops,
+        if exercise_type == "robot":
+            annotated_bytes, xml_description, decomposition_summary, iterations = \
+                await self._run_robot_pipeline(base_image, ctx, decomposition_hint=decomposition_hint)
+        else:
+            logger.warning(
+                "[image_gen] exercise_type=%r is not 'robot' — annotation pipeline skipped, "
+                "returning base image unchanged. "
+                "Check that: (1) exercise_id is provided, (2) exercise was found in DB, "
+                "(3) exercise_type column is 'Robot'/'robot' in AlgoPython DB.",
+                exercise_type or "(empty)",
             )
-            score = verdict.get("quality_score", 0.0)
+            annotated_bytes   = base_image
+            xml_description   = ""
+            decomposition_summary = ""
+            iterations        = 1
 
-            if score > best_score:
-                best_score = score
-                best_bytes = annotated_bytes
-
-            if verdict.get("approved", False):
-                break
-
-            issues = verdict.get("issues", [])
-            refined_prompt = imagen_prompt + (
-                "\n\nFix these issues from the previous attempt:\n"
-                + "\n".join(f"- {iss}" for iss in issues)
-            )
-            annotated_bytes = await self._gemini.annotate_image(base_image, refined_prompt)
-            iterations += 1
-
-        # Save generated image to disk; return URL instead of embedding base64
         images_dir = Path(settings.generated_images_dir)
         images_dir.mkdir(parents=True, exist_ok=True)
         image_id = str(_uuid.uuid4())
-        (images_dir / f"{image_id}.png").write_bytes(best_bytes)
+        (images_dir / f"{image_id}.png").write_bytes(annotated_bytes)
         image_url = f"/feedback-generation/api/feedback/images/{image_id}"
 
         return json.dumps({
             "characteristic": characteristic,
-            "type": "image",
-            "image_url": image_url,
-            "caption": caption,
-            "iterations": iterations,
-            "quality_score": best_score,
+            "type":           "image",
+            "image_url":      image_url,
+            "caption":        xml_description,
+            "iterations":     iterations,
+            "quality_score":  1.0,
         })
+
+    async def _run_robot_pipeline(
+        self,
+        base_image: bytes,
+        ctx: dict,
+        decomposition_hint: str = "",
+    ) -> tuple[bytes, str, str, int]:
+        """Robot annotation pipeline.
+
+        When decomposition_hint is provided (the normal case):
+          1. Claude analyzes the screenshot → calibrated grid bounds
+          2. Hint parser converts the text path → step dicts (no LLM, no solution code)
+          3. PIL renders the drawings
+          4. If rendering is pixel-identical to input, re-analyze grid bounds and retry once
+
+        When no hint is provided (fallback):
+          Same steps 1/3/4 but path is found by RobotPathAgent (tries all stored solutions,
+          then Claude extended thinking if none reach the goal).
+
+        Returns (annotated_bytes, xml_description, decomposition_summary, iterations_used).
+        """
+        from agents.gemini_agent import draw_annotations, images_visually_identical
+        from robot.path_computer import (
+            steps_to_drawings, compute_drawings, solution_to_hint,
+            trace_path, goal_reached, has_for_loop,
+        )
+        from robot.hint_parser import parse_hint
+
+        exercise  = ctx.get("exercise") or {}
+        robot_map = exercise.get("robot_map")
+        language  = ctx.get("language", "fr")
+
+        if not robot_map:
+            raise ValueError(
+                f"robot_map is required for Robot exercises but is missing for "
+                f"exercise_id={ctx.get('exercise_id')!r}. "
+                "Check the <map>...</map> block in the exercise description."
+            )
+
+        logger.info(
+            "[robot_pipeline] exercise_id=%r  grid=%d×%d  hint=%r",
+            ctx.get("exercise_id"),
+            robot_map.get("rows", 0),
+            robot_map.get("cols", 0),
+            (decomposition_hint[:80] + "…" if decomposition_hint and len(decomposition_hint) > 80
+             else decomposition_hint or "(none)"),
+        )
+
+        # ── Step 1: Claude pixel calibration → grid bounds ────────────────────
+        grid_bounds = await self._claude_analyzer.analyze_image(base_image, exercise)
+        logger.info("[robot_pipeline] grid bounds: %s", grid_bounds)
+
+        # ── Step 2: Path resolution ───────────────────────────────────────────
+        if decomposition_hint and decomposition_hint.strip():
+            # Explicit hint provided — use it directly
+            hint_text = decomposition_hint.strip()
+            logger.info("[robot_pipeline] using provided hint")
+        else:
+            # Auto-generate hint from stored solutions — prefer a solution that reaches G
+            hint_text = ""
+            best_partial = ""
+            for idx, sol in enumerate(exercise.get("possible_solutions") or []):
+                candidate = solution_to_hint(sol, robot_map)
+                if not candidate:
+                    logger.debug("[robot_pipeline] solution[%d] produced no hint — skipping", idx)
+                    continue
+                path_check = trace_path(sol, robot_map)
+                if goal_reached(path_check, robot_map):
+                    hint_text = candidate
+                    logger.info(
+                        "[robot_pipeline] solution[%d] reaches G — using as hint (%d steps)",
+                        idx, len(path_check),
+                    )
+                    break
+                if not best_partial:
+                    best_partial = candidate
+                    logger.warning(
+                        "[robot_pipeline] solution[%d] does NOT reach G (ends at row=%d col=%d) — "
+                        "keeping as fallback",
+                        idx,
+                        path_check[-1]["to_row"] if path_check else -1,
+                        path_check[-1]["to_col"] if path_check else -1,
+                    )
+
+            if not hint_text:
+                hint_text = best_partial
+                if hint_text:
+                    logger.warning(
+                        "[robot_pipeline] no stored solution reaches G — "
+                        "falling back to partial path (annotation will be incomplete)"
+                    )
+                else:
+                    logger.warning("[robot_pipeline] no hint generated — solutions may be empty or unrecognised")
+
+        path_steps = parse_hint(hint_text, robot_map) if hint_text else []
+
+        if not path_steps:
+            logger.error(
+                "[robot_pipeline] path is empty — hint_preview=%.300s",
+                hint_text or "(none)",
+            )
+
+        # Show iteration badges only when the solution uses a for loop
+        solutions = exercise.get("possible_solutions") or []
+        show_badges = any(has_for_loop(sol) for sol in solutions)
+
+        # ── Step 3: Convert steps → drawing commands ──────────────────────────
+        drawings, _ = steps_to_drawings(
+            path_steps, grid_bounds, robot_map, show_badge_numbers=show_badges,
+        )
+        _, xml_desc, summary = compute_drawings(
+            exercise, grid_bounds, path=path_steps, language=language,
+        )
+
+        _log_drawing_types(drawings, "[robot_pipeline] drawings")
+
+        # ── Step 4: PIL render + pixel-diff guard (one retry with fresh bounds) ─
+        rendered = draw_annotations(base_image, drawings)
+
+        if images_visually_identical(base_image, rendered):
+            logger.error(
+                "[robot_pipeline] rendered image identical to input — "
+                "re-analyzing grid bounds and retrying. drawings=%d  steps=%d",
+                len(drawings), len(path_steps),
+            )
+            new_bounds = await self._claude_analyzer.analyze_image(base_image, exercise)
+            if new_bounds:
+                grid_bounds = new_bounds
+                drawings, _ = steps_to_drawings(path_steps, grid_bounds, robot_map)
+            rendered = draw_annotations(base_image, drawings)
+            iteration = 2
+            if images_visually_identical(base_image, rendered):
+                logger.error("[robot_pipeline] still no annotations after retry — returning base image")
+                return base_image, xml_desc, summary, iteration
+        else:
+            iteration = 1
+
+        logger.info("[robot_pipeline] annotations drawn successfully (iteration %d)", iteration)
+        return rendered, xml_desc, summary, iteration
+
+
+def _log_drawing_types(drawings: list[dict], prefix: str) -> None:
+    counts: dict[str, int] = {}
+    for d in drawings:
+        t = d.get("type", "?")
+        counts[t] = counts.get(t, 0) + 1
+    if counts:
+        logger.info("%s: %d total — %s", prefix, len(drawings),
+                    ", ".join(f"{k}×{v}" for k, v in counts.items()))
+    else:
+        logger.error("%s: EMPTY", prefix)

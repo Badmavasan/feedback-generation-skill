@@ -11,10 +11,14 @@ Auth: admin JWT (Bearer) OR platform API key (X-API-Key header).
   - JWT admin  → platform_id must be supplied as a query param
   - API key    → platform_id is resolved from the key; query param ignored
 """
+import logging
+import traceback
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
+
+logger = logging.getLogger(__name__)
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Literal, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -56,6 +60,18 @@ class ExerciseContext(BaseModel):
     possible_solutions: list[str] = Field(
         default=[],
         description="List of accepted correct solution strings",
+    )
+    exercise_type: Optional[str] = Field(
+        None,
+        description="'robot', 'design', or 'console'. Required for image feedback to select the right pipeline.",
+    )
+    robot_map: Optional[dict] = Field(
+        None,
+        description=(
+            "Robot grid definition. Required for robot image feedback. "
+            "Format: {grid: [[row0...], [row1...], ...], rows: N, cols: M}. "
+            "Cell values: O (free), X (obstacle), I (robot start), G (goal)."
+        ),
     )
 
 
@@ -119,6 +135,7 @@ async def _run_generation(
     error: Optional[ErrorContext] = None,
     live_context: Optional[LiveContext] = None,
     base_image: Optional[str] = None,
+    decomposition_hint: Optional[str] = None,
 ) -> str:
     try:
         return await generate_feedback(
@@ -136,10 +153,12 @@ async def _run_generation(
             base_image_b64=base_image,
             db=db,
             algopython_db=algopython_db,
+            decomposition_hint=decomposition_hint,
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e))
     except Exception as e:
+        logger.error("Generation failed:\n%s", traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Generation failed: {str(e)}",
@@ -476,6 +495,14 @@ class ImageFeedbackRequest(BaseModel):
             "The Gemini agent plans and applies annotations illustrating the KC in context."
         ),
     )
+    decomposition_hint: Optional[str] = Field(
+        None,
+        description=(
+            "Optional free-text hint describing how to decompose the exercise. "
+            "Use this to guide the annotation style, e.g. 'highlight the loop that repeats 3 times' "
+            "or 'show how the parameter changes the path length'."
+        ),
+    )
     live_context: Optional[LiveContext] = Field(
         None,
         description="Required when mode='live'.",
@@ -514,6 +541,26 @@ async def feedback_image(
                 "Provide exercise_id or an explicit exercise body."
             ),
         )
+    if (
+        body.exercise
+        and (body.exercise.exercise_type or "").lower() == "robot"
+        and not body.exercise.robot_map
+    ):
+        from db.algopython_crud import parse_robot_map_from_description
+        parsed = parse_robot_map_from_description(body.exercise.description)
+        if parsed:
+            # Inject the parsed map so the rest of the pipeline sees it
+            body.exercise.robot_map = parsed
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=(
+                    "robot_map is required for Robot exercises and could not be parsed "
+                    "from the exercise description. Expected a <map>[[...]]</map> block "
+                    "in the description, or supply robot_map explicitly: "
+                    "{\"grid\": [[\"I\",\"O\",...], ...], \"rows\": N, \"cols\": M}"
+                ),
+            )
     if body.mode == "live" and body.live_context is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -534,6 +581,7 @@ async def feedback_image(
         error=body.error,
         base_image=body.base_image,
         live_context=body.live_context,
+        decomposition_hint=body.decomposition_hint,
         db=db,
         algopython_db=algopython_db,
     )

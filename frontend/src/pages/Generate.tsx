@@ -90,6 +90,7 @@ export default function Generate() {
           exercise_id: exerciseId || undefined,
           error: errorTag ? { tag: errorTag, description: errorDesc } : undefined,
           base_image: imageB64!,
+          decomposition_hint: undefined,
         })
       } else if (endpoint === 'error') {
         res = await generateFeedbackError(platformId, {

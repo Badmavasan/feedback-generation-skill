@@ -6,6 +6,25 @@ import io
 import json
 
 
+def _extract_text(response) -> str:
+    if response.text is not None:
+        return response.text
+    try:
+        for candidate in (response.candidates or []):
+            texts = []
+            for part in (candidate.content.parts or []):
+                if getattr(part, "thought", False):
+                    continue
+                text = getattr(part, "text", None)
+                if text:
+                    texts.append(text)
+            if texts:
+                return "".join(texts)
+    except Exception:
+        pass
+    return ""
+
+
 _REGIONS = {
     "top-left":     (0.0, 0.0, 0.5, 0.5),
     "top-right":    (0.5, 0.0, 1.0, 0.5),
@@ -28,20 +47,17 @@ class ImageCoherenceChecker:
 
     def _get_client(self):
         if self._client is None:
-            import google.generativeai as genai
+            from google import genai
             from core.config import get_settings
-            genai.configure(api_key=get_settings().google_api_key)
-            self._client = genai
+            self._client = genai.Client(api_key=get_settings().google_api_key)
         return self._client
 
     def _crop_region(self, pil_image, bbox: tuple[float, float, float, float]):
-        """Crop a PIL image to (x0_frac, y0_frac, x1_frac, y1_frac) fractions."""
         w, h = pil_image.size
-        x0 = int(bbox[0] * w)
-        y0 = int(bbox[1] * h)
-        x1 = int(bbox[2] * w)
-        y1 = int(bbox[3] * h)
-        return pil_image.crop((x0, y0, x1, y1))
+        return pil_image.crop((
+            int(bbox[0] * w), int(bbox[1] * h),
+            int(bbox[2] * w), int(bbox[3] * h),
+        ))
 
     def _bytes_to_pil(self, image_bytes: bytes):
         import PIL.Image
@@ -58,33 +74,36 @@ class ImageCoherenceChecker:
         region_bytes: bytes,
         decomposition_summary: str,
     ) -> dict:
-        import google.generativeai as genai
+        from google.genai import types
         from core.config import get_settings
         from prompts.image import build_coherence_region_prompt
 
-        self._get_client()
-
-        import PIL.Image
-        pil = PIL.Image.open(io.BytesIO(region_bytes))
-        model = genai.GenerativeModel(model_name=get_settings().gemini_model)
+        client = self._get_client()
+        settings = get_settings()
         prompt = build_coherence_region_prompt(region_name, decomposition_summary)
 
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(
             None,
-            lambda: model.generate_content(
-                [prompt, pil],
-                generation_config=genai.types.GenerationConfig(
+            lambda: client.models.generate_content(
+                model=settings.gemini_model,
+                contents=[
+                    prompt,
+                    types.Part.from_bytes(data=region_bytes, mime_type="image/png"),
+                ],
+                config=types.GenerateContentConfig(
                     temperature=0.0,
-                    max_output_tokens=256,
+                    max_output_tokens=256 + 2048,
                     response_mime_type="application/json",
+                    thinking_config=types.ThinkingConfig(thinking_budget=2048),
                 ),
             ),
         )
+        text = _extract_text(response)
         try:
-            return json.loads(response.text)
+            return json.loads(text)
         except (json.JSONDecodeError, ValueError):
-            return {"has_relevant_annotation": False, "is_readable": False, "issues": [response.text[:200]]}
+            return {"has_relevant_annotation": False, "is_readable": False, "issues": [text[:200]]}
 
     async def _analyse_overall(
         self,
@@ -92,33 +111,35 @@ class ImageCoherenceChecker:
         decomposition_summary: str,
         loops: list[dict],
     ) -> dict:
-        import google.generativeai as genai
+        from google.genai import types
         from core.config import get_settings
         from prompts.image import build_coherence_overall_prompt
 
-        self._get_client()
-
-        import PIL.Image
-        pil = PIL.Image.open(io.BytesIO(annotated_bytes))
-        model = genai.GenerativeModel(model_name=get_settings().gemini_model)
+        client = self._get_client()
+        settings = get_settings()
         prompt = build_coherence_overall_prompt(decomposition_summary, loops)
 
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(
             None,
-            lambda: model.generate_content(
-                [prompt, pil],
-                generation_config=genai.types.GenerationConfig(
+            lambda: client.models.generate_content(
+                model=settings.gemini_model,
+                contents=[
+                    prompt,
+                    types.Part.from_bytes(data=annotated_bytes, mime_type="image/png"),
+                ],
+                config=types.GenerateContentConfig(
                     temperature=0.0,
-                    max_output_tokens=512,
+                    max_output_tokens=512 + 4096,
                     response_mime_type="application/json",
+                    thinking_config=types.ThinkingConfig(thinking_budget=4096),
                 ),
             ),
         )
+        text = _extract_text(response)
         try:
-            return json.loads(response.text)
+            return json.loads(text)
         except (json.JSONDecodeError, ValueError):
-            text = response.text
             approved = '"approved": true' in text.lower()
             return {
                 "approved": approved,
@@ -140,12 +161,11 @@ class ImageCoherenceChecker:
               approved: bool,
               overall_score: float,
               region_scores: {region_name: {has_annotation, is_readable, issues}},
-              issues: [str],   # aggregated issues from all regions + overall
+              issues: [str],
             }
         """
         pil = self._bytes_to_pil(annotated_bytes)
 
-        # Region analysis (concurrent)
         region_tasks = {
             name: asyncio.create_task(
                 self._analyse_region(
@@ -158,16 +178,13 @@ class ImageCoherenceChecker:
         }
         region_results = {name: await task for name, task in region_tasks.items()}
 
-        # Overall analysis
         overall = await self._analyse_overall(annotated_bytes, decomposition_summary, loops)
 
-        # Aggregate issues
         all_issues: list[str] = list(overall.get("issues", []))
         for rname, rdata in region_results.items():
             for issue in rdata.get("issues", []):
                 all_issues.append(f"[{rname}] {issue}")
 
-        # Score: weight overall 60%, region readability 40%
         readable_regions = sum(
             1 for r in region_results.values() if r.get("is_readable", True)
         )
@@ -178,7 +195,7 @@ class ImageCoherenceChecker:
         return {
             "approved": overall.get("approved", False),
             "overall_score": round(combined_score, 3),
-            "quality_score": round(combined_score, 3),  # alias for existing callers
+            "quality_score": round(combined_score, 3),
             "region_scores": region_results,
             "issues": all_issues,
         }

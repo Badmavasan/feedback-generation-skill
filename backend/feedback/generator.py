@@ -1,11 +1,14 @@
 """Main entry point for feedback generation — delegates to the orchestrator."""
 import base64
+import logging
 import uuid
 
 from agents.orchestrator import ClaudeOrchestrator
 from feedback.characteristics import validate_characteristics
 from db.trace import TraceCollector
-from rag.retriever import format_db_exercise_context, retrieve_full_platform_context
+from rag.retriever import retrieve_full_platform_context
+
+logger = logging.getLogger(__name__)
 
 
 async def generate_feedback(
@@ -23,6 +26,7 @@ async def generate_feedback(
     exercise_id: str | None = None,
     db=None,              # optional AsyncSession — local feedback DB (records + catalog)
     algopython_db=None,   # optional AsyncSession — AlgoPython source DB (read-only)
+    decomposition_hint: str | None = None,
 ) -> str:
     """
     Orchestrate feedback generation and return XML string.
@@ -51,53 +55,50 @@ async def generate_feedback(
         )
         algo_ex = await get_algo_exercise_by_platform_id(algopython_db, exercise_id)
         if algo_ex is not None:
-            from db.algopython_crud import parse_correct_codes
+            from db.algopython_crud import parse_correct_codes, parse_robot_map_from_description
             task_types = await get_exercise_task_types(algopython_db, algo_ex.id)
             solutions = parse_correct_codes(algo_ex.correct_codes)
-            exercise = {
-                "description": algo_ex.description or "",
-                "possible_solutions": solutions,
-                "exercise_type": algo_ex.exercise_type or "",
-                "task_types": [
-                    {"task_code": tt.task_code, "task_name": tt.task_name}
-                    for tt in task_types
-                ],
-            }
-            exercise_context_override = format_db_exercise_context({
-                "exercise_id": str(algo_ex.platform_exercise_id),
-                "title": algo_ex.title,
-                "exercise_type": algo_ex.exercise_type or "unknown",
-                "description": algo_ex.description or "",
-                "possible_solutions": solutions,
-                "robot_map": None,
-                "kc_names": [],
-                "task_types": [
-                    {"task_code": tt.task_code, "task_name": tt.task_name}
-                    for tt in task_types
-                ],
-            })
+            robot_map = parse_robot_map_from_description(algo_ex.description)
+            exercise_type_raw = algo_ex.exercise_type or ""
+            is_robot = exercise_type_raw.lower() == "robot"
 
-    if exercise is None and exercise_id is not None and db is not None:
-        from db.crud import get_exercise_by_exercise_id
-        db_ex = await get_exercise_by_exercise_id(db, exercise_id)
-        if db_ex is not None:
+            logger.info(
+                "[generator] exercise_id=%s  type=%r  solutions=%d  robot_map=%s",
+                exercise_id, exercise_type_raw, len(solutions),
+                f"{robot_map['rows']}×{robot_map['cols']}" if robot_map else "MISSING",
+            )
+
+            if is_robot and robot_map is None:
+                raise ValueError(
+                    f"exercise_id={exercise_id} is type 'robot' but no parseable map was found "
+                    "in the exercise description. "
+                    "Expected a <map>…</map> or <grid>…</grid> block, or a 2-D array of "
+                    "O/X/I/G cells. "
+                    f"Description preview: {(algo_ex.description or '')[:300]!r}"
+                )
+
+            if is_robot and not solutions:
+                raise ValueError(
+                    f"exercise_id={exercise_id} is type 'robot' but correct_codes is empty "
+                    "or could not be decoded. "
+                    f"Raw correct_codes preview: {(algo_ex.correct_codes or '')[:200]!r}"
+                )
             exercise = {
-                "description": db_ex.description,
-                "possible_solutions": db_ex.possible_solutions or [],
-                "robot_map": db_ex.robot_map,
-                "exercise_type": db_ex.exercise_type,
-                "kc_names": db_ex.kc_names or [],
-                "task_types": [],
+                "description": algo_ex.description or "",
+                "possible_solutions": solutions,
+                "exercise_type": exercise_type_raw,
+                "robot_map": robot_map,
+                "task_types": [
+                    {"task_code": tt.task_code, "task_name": tt.task_name}
+                    for tt in task_types
+                ],
             }
-            exercise_context_override = format_db_exercise_context({
-                "exercise_id": db_ex.exercise_id,
-                "title": db_ex.title,
-                "exercise_type": db_ex.exercise_type,
-                "description": db_ex.description,
-                "possible_solutions": db_ex.possible_solutions or [],
-                "robot_map": db_ex.robot_map,
-                "kc_names": db_ex.kc_names or [],
-            })
+        else:
+            logger.warning(
+                "[generator] exercise_id=%s NOT FOUND in AlgoPython DB "
+                "(status=approved required). Exercise context will be unavailable.",
+                exercise_id,
+            )
 
     # ── 2. Enrich error from AlgoPython source DB (primary) or local DB ───────
     if error is not None and error.get("tag"):
@@ -228,6 +229,7 @@ async def generate_feedback(
             platform_config=platform_config,
             run_id=record_id,
             trace=trace,
+            decomposition_hint=decomposition_hint,
         )
     except Exception as exc:
         status = "failed"

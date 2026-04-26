@@ -52,6 +52,7 @@ class PlatformConfig(Base):
     updated_at = Column(DateTime, default=_now, onupdate=_now)
 
 
+
 class Exercise(Base):
     __tablename__ = "exercises"
 

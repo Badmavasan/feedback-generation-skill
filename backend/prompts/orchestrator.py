@@ -294,7 +294,7 @@ Description: {kc_description}
 {error_block}\
 {live_block}
 ---
-Proceed. For each requested characteristic:
+{base_image_instruction}Proceed. For each requested characteristic:
 1. Generate via the appropriate tool.
 2. Evaluate rigorously against all seven quality dimensions.
 3. Regenerate with precise critique if any dimension fails (max {text_max_iterations} attempts).
@@ -414,6 +414,7 @@ def build_planning_prompt(
     error: dict | None,
     live_context: dict | None,
     text_max_iterations: int,
+    has_base_image: bool = False,
 ) -> str:
     exercise_block = ""
     if exercise:
@@ -449,6 +450,14 @@ def build_planning_prompt(
             interaction_data=interaction_lines or "(none)",
         )
 
+    base_image_instruction = (
+        "**A base_image has been provided.** "
+        "You MUST call `generate_image_feedback` (NOT `generate_text_feedback`) "
+        "for `with_example_related_to_exercise`. "
+        "Do not generate a text component for that characteristic.\n\n"
+        if has_base_image else ""
+    )
+
     return ORCHESTRATOR_PLANNING_PROMPT.format(
         platform_id=platform_id,
         mode=mode,
@@ -461,4 +470,5 @@ def build_planning_prompt(
         error_block=error_block,
         live_block=live_block,
         text_max_iterations=text_max_iterations,
+        base_image_instruction=base_image_instruction,
     )

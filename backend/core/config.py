@@ -28,9 +28,10 @@ class Settings(BaseSettings):
     # Mistral feedback model
     mistral_model: str = "mistral-large-latest"
 
-    # Gemini model for annotation
-    gemini_model: str = "gemini-2.0-flash"
-    imagen_model: str = "imagen-3.0-generate-002"
+    # Gemini model for annotation planning / coherence checking
+    gemini_model: str = "gemini-2.5-pro"
+    # Gemini image generation model (supports image input + image output)
+    nano_banana_model: str = "gemini-2.5-flash-image"
 
     # Image annotation: max iterations before accepting best result
     image_max_iterations: int = 3
