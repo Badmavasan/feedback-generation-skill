@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     google_api_key: str = ""  # For Gemini + Imagen
     open_ai_api_key: str = ""  # For OpenAI image generation (env var: OPEN_AI_API_KEY)
 
+    # Allowed CORS origins (comma-separated). Extend via env var for production.
+    cors_origins: str = "http://localhost:5173,http://localhost:3000"
+
     # OpenAI image generation model
     openai_image_model: str = "gpt-image-2"
 

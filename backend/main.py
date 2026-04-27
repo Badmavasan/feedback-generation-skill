@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import auth, platforms, feedback
 from api.routes import algopython as algopython_router
+from core.config import get_settings
 from db.database import init_db
 
 
@@ -196,8 +197,12 @@ Si une valeur est textuelle, parler de "texte" ou de "ce qui est entre guillemet
             raise
 
 
+_settings = get_settings()
+_cors_origins = [o.strip() for o in _settings.cors_origins.split(",") if o.strip()]
+
 app = FastAPI(
     title="Feedback Generation Skill",
+    root_path="/feedback-generation/api",
     description=(
         "Multi-platform, multi-agent pedagogical feedback generation for K12 programming learners.\n\n"
         "## Feedback endpoints\n"
@@ -231,7 +236,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
