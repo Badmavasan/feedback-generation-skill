@@ -227,6 +227,7 @@ export interface FeedbackRecord {
   language: string
   characteristics: string[]
   status: 'pending' | 'completed' | 'failed'
+  validation_status: 'generated' | 'validé'
   error_message: string | null
   total_iterations: number | null
   created_at: string

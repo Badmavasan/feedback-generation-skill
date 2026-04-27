@@ -157,4 +157,18 @@ export const getHistoryRecord = (id: string) =>
 export const deleteHistoryRecord = (id: string) =>
   api.delete(`/history/${id}`)
 
+export const validateHistoryRecord = (id: string) =>
+  api.patch<import('../types').FeedbackRecord>(`/history/${id}/validate`)
+
+export const unvalidateHistoryRecord = (id: string) =>
+  api.patch<import('../types').FeedbackRecord>(`/history/${id}/unvalidate`)
+
+export const downloadValidatedFeedbacks = (platformId?: string) => {
+  const params = platformId ? `?platform_id=${platformId}` : ''
+  return api.get(`/history/export${params}`, {
+    responseType: 'blob',
+    headers: { Accept: 'application/xml' },
+  })
+}
+
 export default api

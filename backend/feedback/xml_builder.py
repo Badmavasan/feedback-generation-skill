@@ -28,6 +28,7 @@ def build_xml_output(
     kc_name: str,
     kc_description: str,
     components: dict,
+    platform_exercise_id: str | None = None,
 ) -> str:
     """
     Build XML string from assembled components.
@@ -44,6 +45,8 @@ def build_xml_output(
     ET.SubElement(meta, "mode").text = mode
     ET.SubElement(meta, "level").text = level
     ET.SubElement(meta, "language").text = language
+    if level in ("exercise", "error") and platform_exercise_id:
+        ET.SubElement(meta, "platform_exercise_id").text = platform_exercise_id
     ET.SubElement(meta, "generated_at").text = datetime.now(timezone.utc).isoformat()
 
     # --- Knowledge Component ---

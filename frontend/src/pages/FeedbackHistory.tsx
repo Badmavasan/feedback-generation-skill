@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CheckCircle, XCircle, Clock, ChevronRight, RefreshCw, Trash2 } from 'lucide-react'
-import { listHistory, deleteHistoryRecord } from '../api/client'
+import { CheckCircle, XCircle, Clock, ChevronRight, RefreshCw, Trash2, BadgeCheck, Download } from 'lucide-react'
+import { listHistory, deleteHistoryRecord, validateHistoryRecord, unvalidateHistoryRecord, downloadValidatedFeedbacks } from '../api/client'
 import type { FeedbackRecord } from '../types'
 
 const STATUS_ICON = {
@@ -27,6 +27,7 @@ export default function FeedbackHistory() {
   const [loading, setLoading] = useState(true)
   const [platform, setPlatform] = useState('')
   const [offset, setOffset] = useState(0)
+  const [validating, setValidating] = useState<string | null>(null)
   const limit = 25
   const navigate = useNavigate()
 
@@ -49,16 +50,56 @@ export default function FeedbackHistory() {
     load()
   }
 
+  const handleValidate = async (e: React.MouseEvent, record: FeedbackRecord) => {
+    e.stopPropagation()
+    setValidating(record.id)
+    try {
+      if (record.validation_status === 'validé') {
+        await unvalidateHistoryRecord(record.id)
+      } else {
+        await validateHistoryRecord(record.id)
+      }
+      load()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setValidating(null)
+    }
+  }
+
+  const handleDownload = async () => {
+    try {
+      const res = await downloadValidatedFeedbacks(platform || undefined)
+      const url = URL.createObjectURL(new Blob([res.data], { type: 'application/xml' }))
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'feedbacks_valides.xml'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err: any) {
+      if (err.response?.status === 404) alert('Aucun feedback validé à exporter.')
+      else console.error(err)
+    }
+  }
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Historique des générations</h1>
-        <button
-          onClick={() => load()}
-          className="flex items-center gap-2 border border-gray-300 text-gray-700 text-sm px-3 py-2 rounded-lg hover:bg-gray-50"
-        >
-          <RefreshCw size={14} />Rafraîchir
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleDownload}
+            className="flex items-center gap-2 border border-green-300 text-green-700 text-sm px-3 py-2 rounded-lg hover:bg-green-50"
+          >
+            <Download size={14} />Télécharger les validés
+          </button>
+          <button
+            onClick={() => load()}
+            className="flex items-center gap-2 border border-gray-300 text-gray-700 text-sm px-3 py-2 rounded-lg hover:bg-gray-50"
+          >
+            <RefreshCw size={14} />Rafraîchir
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -84,6 +125,7 @@ export default function FeedbackHistory() {
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Statut</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Validation</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Platform</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">KC</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Exercice</th>
@@ -91,12 +133,12 @@ export default function FeedbackHistory() {
               <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Caractéristiques</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Itérations</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap w-36">Date</th>
-              <th className="text-right px-4 py-3 w-20"></th>
+              <th className="text-right px-4 py-3 w-24"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading && (
-              <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-400 text-sm">Chargement…</td></tr>
+              <tr><td colSpan={10} className="px-4 py-8 text-center text-gray-400 text-sm">Chargement…</td></tr>
             )}
             {!loading && records.map(r => (
               <tr
@@ -112,6 +154,15 @@ export default function FeedbackHistory() {
                       r.status === 'failed' ? 'text-red-700' : 'text-yellow-700'
                     }`}>{STATUS_LABEL[r.status]}</span>
                   </div>
+                </td>
+                <td className="px-4 py-3">
+                  {r.validation_status === 'validé' ? (
+                    <span className="flex items-center gap-1 text-xs font-medium text-emerald-700">
+                      <BadgeCheck size={14} className="text-emerald-500" />Validé
+                    </span>
+                  ) : (
+                    <span className="text-xs text-gray-400">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 font-mono text-xs text-indigo-700">{r.platform_id}</td>
                 <td className="px-4 py-3 font-mono text-xs text-gray-800">{r.kc_name}</td>
@@ -132,6 +183,20 @@ export default function FeedbackHistory() {
                 <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{formatDate(r.created_at)}</td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-2">
+                    {r.status === 'completed' && (
+                      <button
+                        onClick={e => handleValidate(e, r)}
+                        disabled={validating === r.id}
+                        title={r.validation_status === 'validé' ? 'Retirer la validation' : 'Valider'}
+                        className={`p-1 rounded transition-colors ${
+                          r.validation_status === 'validé'
+                            ? 'text-emerald-500 hover:bg-emerald-50 hover:text-emerald-700'
+                            : 'text-gray-400 hover:bg-emerald-50 hover:text-emerald-500'
+                        }`}
+                      >
+                        <BadgeCheck size={14} />
+                      </button>
+                    )}
                     <button
                       onClick={e => handleDelete(e, r.id)}
                       className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
@@ -144,7 +209,7 @@ export default function FeedbackHistory() {
               </tr>
             ))}
             {!loading && records.length === 0 && (
-              <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-400 text-sm">Aucune génération</td></tr>
+              <tr><td colSpan={10} className="px-4 py-8 text-center text-gray-400 text-sm">Aucune génération</td></tr>
             )}
           </tbody>
         </table>

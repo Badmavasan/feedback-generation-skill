@@ -360,6 +360,32 @@ async def get_feedback_record(db: AsyncSession, record_id: str) -> FeedbackRecor
     return result.scalar_one_or_none()
 
 
+async def update_validation_status(
+    db: AsyncSession, record_id: str, validation_status: str
+) -> FeedbackRecord | None:
+    record = await db.get(FeedbackRecord, record_id)
+    if not record:
+        return None
+    record.validation_status = validation_status
+    await db.flush()
+    await db.refresh(record)
+    return record
+
+
+async def list_validated_records(
+    db: AsyncSession, platform_id: str | None = None
+) -> list[FeedbackRecord]:
+    q = (
+        select(FeedbackRecord)
+        .where(FeedbackRecord.validation_status == "validé", FeedbackRecord.status == "completed")
+        .order_by(FeedbackRecord.created_at.desc())
+    )
+    if platform_id:
+        q = q.where(FeedbackRecord.platform_id == platform_id)
+    result = await db.execute(q)
+    return list(result.scalars().all())
+
+
 async def delete_feedback_record(db: AsyncSession, record_id: str) -> bool:
     record = await db.get(FeedbackRecord, record_id)
     if record is None:

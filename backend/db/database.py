@@ -30,6 +30,12 @@ async def init_db() -> None:
     from db import models  # noqa: F401 — ensure models are registered before create_all
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await conn.execute(
+            __import__("sqlalchemy").text(
+                "ALTER TABLE feedback_records "
+                "ADD COLUMN IF NOT EXISTS validation_status VARCHAR NOT NULL DEFAULT 'generated'"
+            )
+        )
 
 
 async def get_db():

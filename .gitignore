@@ -74,3 +74,4 @@ CONTEXT.md
 
 backend/test/
 backend/data/old_generated_data/
+backend/data/generated_images/

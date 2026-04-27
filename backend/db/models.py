@@ -107,6 +107,7 @@ class FeedbackRecord(Base):
     result_xml = Column(Text, nullable=True)
     total_iterations = Column(Integer, nullable=True)
     status = Column(String, nullable=False, default="pending")  # pending | completed | failed
+    validation_status = Column(String, nullable=False, default="generated")  # generated | validé
     error_message = Column(Text, nullable=True)
     created_at = Column(DateTime, default=_now, index=True)
 

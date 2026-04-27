@@ -639,6 +639,7 @@ class ClaudeOrchestrator:
                         kc_name=kc_name,
                         kc_description=kc_description,
                         components=tool_input["components"],
+                        platform_exercise_id=exercise_id,
                     )
                     result_content = "XML assembled successfully."
 

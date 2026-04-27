@@ -1,5 +1,6 @@
 """Feedback generation history + full agent trace."""
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.deps import get_current_admin
@@ -19,6 +20,49 @@ async def list_history(
 ):
     records = await crud.list_feedback_records(db, platform_id=platform_id, limit=limit, offset=offset)
     return [_record_summary(r) for r in records]
+
+
+@router.get("/export")
+async def export_validated(
+    platform_id: str = Query(None),
+    db: AsyncSession = Depends(get_db),
+    admin=Depends(get_current_admin),
+):
+    records = await crud.list_validated_records(db, platform_id=platform_id)
+    if not records:
+        raise HTTPException(status_code=404, detail="Aucun feedback validé à exporter")
+    combined = "\n".join(r.result_xml for r in records if r.result_xml)
+    return Response(
+        content=combined,
+        media_type="application/xml",
+        headers={"Content-Disposition": 'attachment; filename="feedbacks_valides.xml"'},
+    )
+
+
+@router.patch("/{record_id}/validate")
+async def validate_record(
+    record_id: str,
+    db: AsyncSession = Depends(get_db),
+    admin=Depends(get_current_admin),
+):
+    record = await crud.update_validation_status(db, record_id, "validé")
+    if not record:
+        raise HTTPException(status_code=404, detail="Record not found")
+    await db.commit()
+    return _record_summary(record)
+
+
+@router.patch("/{record_id}/unvalidate")
+async def unvalidate_record(
+    record_id: str,
+    db: AsyncSession = Depends(get_db),
+    admin=Depends(get_current_admin),
+):
+    record = await crud.update_validation_status(db, record_id, "generated")
+    if not record:
+        raise HTTPException(status_code=404, detail="Record not found")
+    await db.commit()
+    return _record_summary(record)
 
 
 @router.delete("/{record_id}", status_code=204)
@@ -62,6 +106,7 @@ def _record_summary(r) -> dict:
         "language": r.language,
         "characteristics": r.characteristics,
         "status": r.status,
+        "validation_status": r.validation_status,
         "error_message": r.error_message,
         "total_iterations": r.total_iterations,
         "created_at": r.created_at.isoformat() if r.created_at else "",
