@@ -29,6 +29,7 @@ def build_xml_output(
     kc_description: str,
     components: dict,
     platform_exercise_id: str | None = None,
+    error: dict | None = None,
 ) -> str:
     """
     Build XML string from assembled components.
@@ -53,6 +54,12 @@ def build_xml_output(
     kc = ET.SubElement(root, "knowledge_component")
     ET.SubElement(kc, "name").text = kc_name
     ET.SubElement(kc, "description").text = kc_description
+
+    # --- Error context (only when error_pointed is among the generated components) ---
+    if error and "error_pointed" in components:
+        err_el = ET.SubElement(root, "error_context")
+        ET.SubElement(err_el, "tag").text = error.get("tag", "")
+        ET.SubElement(err_el, "description").text = error.get("description", "")
 
     # --- Components ---
     components_el = ET.SubElement(root, "components")
