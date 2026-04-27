@@ -1114,6 +1114,354 @@ def build_imagen_prompt(annotations: list[dict], caption: str, decomposition_sum
     )
 
 
+def _label_side(bx1: int, by1: int, bx2: int, by2: int,
+                canvas_w: int = 1024, margin: int = 80, pad: int = 30) -> str:
+    """Choose which side of a bounding box has the most empty canvas space for a label."""
+    space_top    = by1 - margin
+    space_bottom = canvas_w - by2 - margin
+    space_left   = bx1 - margin
+    space_right  = canvas_w - bx2 - margin
+    best = max(
+        ("above",  space_top),
+        ("below",  space_bottom),
+        ("left",   space_left),
+        ("right",  space_right),
+        key=lambda t: t[1],
+    )
+    return best[0]
+
+
+def build_design_annotation_prompt(
+    segments: list[dict],
+    turn_events: list[dict],
+    step_labels: dict[int, str],
+    canvas_bounds: dict,  # kept for API compat; not used for standalone generation
+) -> str:
+    """Generate a pixel-precise prompt for STANDALONE decomposition annotation image.
+
+    Produces a self-contained canvas (dark background, purple grid, colored arrows)
+    in the exact visual style of the AlgoPython reference images — NOT an overlay
+    on the exercise screenshot.  The prompt mirrors the manually-crafted style that
+    produces clean, student-readable results.
+
+    Color conventions (matching reference images):
+      orange  (#F97316) — direct avancer/arc calls (approach / transition)
+      blue    (#3B82F6) — 1st user function call   (Boucle 1)
+      pink    (#EC4899) — 2nd user function call   (Boucle 2)
+      teal    (#14B8A6) — 3rd user function call   (Boucle 3)
+    """
+    from collections import defaultdict
+
+    # ── Color palette ────────────────────────────────────────────────────────
+    _PRIM = {"avancer", "arc"}
+    _FN_COLORS = ["blue",    "pink",    "teal",    "yellow",  "red"]
+    _FN_HEX    = ["#3B82F6", "#EC4899", "#14B8A6", "#FBBF24", "#EF4444"]
+    _PRIM_COLOR, _PRIM_HEX = "orange", "#F97316"
+
+    fn_order: dict[str, int] = {}
+    color_name: dict[str, str] = {}
+    color_hex:  dict[str, str] = {}
+    for seg in segments:
+        instr = seg["instruction"]
+        if instr in _PRIM:
+            color_name[instr] = _PRIM_COLOR
+            color_hex[instr]  = _PRIM_HEX
+        elif instr not in color_name:
+            idx = len(fn_order)
+            fn_order[instr] = idx
+            color_name[instr] = _FN_COLORS[idx % len(_FN_COLORS)]
+            color_hex[instr]  = _FN_HEX[idx % len(_FN_HEX)]
+
+    # ── Turtle coordinate bounding box ───────────────────────────────────────
+    all_tx = [s["x1"] for s in segments] + [s["x2"] for s in segments]
+    all_ty = [s["y1"] for s in segments] + [s["y2"] for s in segments]
+    min_tx, max_tx = min(all_tx), max(all_tx)
+    min_ty, max_ty = min(all_ty), max(all_ty)
+
+    # ── Canvas layout (1024×1024 matches OpenAI image model native resolution) ─
+    CANVAS_W, CANVAS_H = 1024, 1024
+    PAD = 80
+
+    span_x = max(max_tx - min_tx, 0.5)
+    span_y = max(max_ty - min_ty, 0.5)
+    scale = min((CANVAS_W - 2*PAD) / span_x, (CANVAS_H - 2*PAD) / span_y)
+    cell_px = max(30, int(scale))
+
+    drawn_w = span_x * scale
+    drawn_h = span_y * scale
+    x_off = PAD + ((CANVAS_W - 2*PAD) - drawn_w) / 2
+    y_off = PAD + ((CANVAS_H - 2*PAD) - drawn_h) / 2
+
+    def px(tx: float, ty: float) -> tuple[int, int]:
+        return (
+            int(x_off + (tx - min_tx) * scale),
+            int(y_off + (ty - min_ty) * scale),
+        )
+
+    # ── Group by step ────────────────────────────────────────────────────────
+    step_segs: dict[int, list[dict]] = defaultdict(list)
+    for seg in segments:
+        step_segs[seg["step_num"]].append(seg)
+
+    # ── Detect overlapping segments between different steps ──────────────────
+    # Two kinds of overlap:
+    #   (a) Exact: same two endpoints → same key
+    #   (b) Subsegment: one segment's range lies within another's range on the same axis
+    seg_paths: dict[tuple, list[int]] = defaultdict(list)  # (p1,p2) → [step_nums]
+    all_seg_px: list[tuple[int, int, int, int, int]] = []  # (x1,y1,x2,y2,step_num)
+    for sn, segs in step_segs.items():
+        for seg in segs:
+            p1 = px(seg["x1"], seg["y1"])
+            p2 = px(seg["x2"], seg["y2"])
+            key = (min(p1, p2), max(p1, p2))
+            if sn not in seg_paths[key]:
+                seg_paths[key].append(sn)
+            all_seg_px.append((p1[0], p1[1], p2[0], p2[1], sn))
+    overlapping_paths = {k: v for k, v in seg_paths.items() if len(v) > 1}
+
+    # Subsegment detection: find pairs where one segment sits fully on another's path
+    subseg_warnings: list[str] = []
+    for i, (ax1, ay1, ax2, ay2, sn_a) in enumerate(all_seg_px):
+        for ax1b, ay1b, ax2b, ay2b, sn_b in all_seg_px[i+1:]:
+            if sn_a == sn_b:
+                continue
+            # Horizontal subsegment on same y
+            if ay1 == ay2 == ay1b == ay2b:
+                lo_a, hi_a = min(ax1, ax2), max(ax1, ax2)
+                lo_b, hi_b = min(ax1b, ax2b), max(ax1b, ax2b)
+                overlap = max(0, min(hi_a, hi_b) - max(lo_a, lo_b))
+                if overlap > 5:
+                    subseg_warnings.append(
+                        f"  Steps {sn_a} and {sn_b} share ~{overlap}px of horizontal path at y={ay1}."
+                        f" Draw step {sn_a} as a 3px line and step {sn_b} as a 3px line,"
+                        f" OFFSET 4px vertically from each other (one at y={ay1-4}, one at y={ay1+4})."
+                    )
+
+    # ── Build prompt header ──────────────────────────────────────────────────
+    sx0, sy0 = px(segments[0]["x1"],   segments[0]["y1"])
+    ex0, ey0 = px(segments[-1]["x2"],  segments[-1]["y2"])
+
+    lines = [
+        "Generate a STANDALONE decomposition annotation image for an AlgoPython design exercise.",
+        "This is a brand-new image — do NOT use or reference any other image.",
+        "",
+        f"CANVAS: {CANVAS_W}×{CANVAS_H} pixels.",
+        "Background: solid dark charcoal (#1a1a2e).",
+        f"Grid: faint purple lines (#3a2a4a, 1px) forming square cells of ~{cell_px}px.",
+        "",
+        "Draw ONLY graphical elements. NO text, NO code, NO title, NO legend.",
+        "",
+        f"START MARKER: solid yellow pentagon chevron (~22px) at pixel ({sx0},{sy0}),",
+        " pointing in the direction the first arrow leaves that point.",
+        "",
+    ]
+
+    # ── Overlap warnings ─────────────────────────────────────────────────────
+    all_warnings = []
+    for (p1, p2), sns in overlapping_paths.items():
+        offset_dir = "vertically" if p1[1] == p2[1] else "horizontally"
+        all_warnings.append(
+            f"  Steps {sns} share the path {p1}→{p2}."
+            f" Draw them as parallel lines offset by 5px {offset_dir},"
+            f" each with its own arrowhead and badge."
+            f" Step {sns[0]} offset to one side, step {sns[1]} to the other."
+        )
+    all_warnings.extend(subseg_warnings)
+    if all_warnings:
+        lines.append("⚠ OVERLAPPING / SHARED PATH SEGMENTS — must be visually separated:")
+        lines.extend(all_warnings)
+        lines.append("")
+
+    lines.append("━━━ PHASES — draw ALL phases in ONE image ━━━")
+    lines.append("")
+
+    # ── Per-phase description ────────────────────────────────────────────────
+    # Track label y-positions already used to stagger repeated function labels
+    used_label_y: list[int] = []
+
+    for sn in sorted(step_segs.keys()):
+        segs  = step_segs[sn]
+        label = step_labels.get(sn, f"Étape {sn}")
+        instr = segs[0]["instruction"]
+        cn    = color_name.get(instr, _PRIM_COLOR)
+        ch    = color_hex.get(instr, _PRIM_HEX)
+        is_fn = instr not in _PRIM
+
+        # Pixel bounding box
+        pts = [px(s["x1"], s["y1"]) for s in segs] + [px(segs[-1]["x2"], segs[-1]["y2"])]
+        bx1 = min(p[0] for p in pts)
+        by1 = min(p[1] for p in pts)
+        bx2 = max(p[0] for p in pts)
+        by2 = max(p[1] for p in pts)
+        bcx = (bx1 + bx2) // 2
+        bcy = (by1 + by2) // 2
+
+        lines.append(f"PHASE {sn}  [{label}]  color: {cn} ({ch})  4px arrows")
+
+        if is_fn:
+            # One badge at centroid of bounding box — NOT repeated per segment
+            lines.append(
+                f"  Bounding box: ({bx1},{by1})–({bx2},{by2})."
+            )
+            lines.append(
+                f"  Corner brackets: white dashed ⌐¬LJ brackets (~18px arms, 2px thick)"
+                f" at the 4 corners of the bounding box."
+            )
+            # Find the side with most canvas space for the label.
+            # Avoid reusing a y-position already claimed by another label
+            # (prevents all left-side labels clustering at the same y).
+            side = _label_side(bx1, by1, bx2, by2, CANVAS_W)
+            # Candidate positions per side
+            candidates = {
+                "above": (bcx, by1 - 20),
+                "below": (bcx, by2 + 20),
+                "left":  (bx1 - 20, bcy),
+                "right": (bx2 + 20, bcy),
+            }
+            # If preferred side's y is too close to an already-used label y, try the next best
+            MIN_Y_GAP = 35
+            side_order = [side]  # start with preferred
+            for alt in ("above", "below", "left", "right"):
+                if alt not in side_order:
+                    side_order.append(alt)
+            for candidate_side in side_order:
+                lx, ly = candidates[candidate_side]
+                if all(abs(ly - uy) >= MIN_Y_GAP for uy in used_label_y):
+                    side = candidate_side
+                    break
+            lx, ly = candidates[side]
+            used_label_y.append(ly)
+            side_descriptions = {
+                "above": "above the bounding box",
+                "below": "below the bounding box",
+                "left":  "to the left of the bounding box",
+                "right": "to the right of the bounding box",
+            }
+            pos_hint = f"centered at ({lx},{ly}), {side_descriptions[side]}"
+            lines.append(
+                f"  Label pill: white rounded-rectangle, bold dark text \"{label}\","
+                f" {pos_hint}. Must NOT overlap any arrow, badge, or bracket."
+            )
+            # One step-number badge at bounding box centroid
+            lines.append(
+                f"  Step badge: hexagonal badge \"{sn}\" (white text on {cn}, ~15px radius)"
+                f" at bounding box centroid ({bcx},{bcy})."
+                f" Must have ≥12px clearance from all arrows."
+            )
+        else:
+            # Primitive (single segment) — badge at midpoint
+            p1 = px(segs[0]["x1"], segs[0]["y1"])
+            p2 = px(segs[0]["x2"], segs[0]["y2"])
+            mid = ((p1[0]+p2[0])//2, (p1[1]+p2[1])//2)
+            # Offset badge perpendicular to the arrow so it doesn't sit on the line
+            is_horiz = abs(p2[1]-p1[1]) < abs(p2[0]-p1[0])
+            badge_pos = (mid[0], mid[1] - 20) if is_horiz else (mid[0] + 20, mid[1])
+            lines.append(
+                f"  Arrow: from ({p1[0]},{p1[1]}) → ({p2[0]},{p2[1]})."
+                f" Filled arrowhead at ({p2[0]},{p2[1]})."
+            )
+            lines.append(
+                f"  Step badge: hexagonal badge \"{sn}\" (white text on {cn}, ~13px radius)"
+                f" at ({badge_pos[0]},{badge_pos[1]}) — offset above/beside the arrow midpoint,"
+                f" NOT sitting directly on the arrow line."
+            )
+
+        # Per-segment arrows for function calls (listed without badges — badge is at centroid)
+        if is_fn:
+            for i, seg in enumerate(segs):
+                p1 = px(seg["x1"], seg["y1"])
+                p2 = px(seg["x2"], seg["y2"])
+                overlap_note = ""
+                key = (min(p1, p2), max(p1, p2))
+                if key in overlapping_paths and len(overlapping_paths[key]) > 1:
+                    other = [s for s in overlapping_paths[key] if s != sn]
+                    overlap_note = f" ⚠ OFFSET 5px from step {other[0]}'s arrow on this path."
+                lines.append(
+                    f"  Arrow {i+1}: from ({p1[0]},{p1[1]}) → ({p2[0]},{p2[1]})."
+                    f" Filled arrowhead at ({p2[0]},{p2[1]}).{overlap_note}"
+                )
+
+        lines.append("")
+
+    # ── Turn indicators ──────────────────────────────────────────────────────
+    if turn_events:
+        lines.append("TURN INDICATORS — small white curved arc (~11px radius) with arrowhead:")
+        for t in turn_events:
+            tx, ty = px(t["x"], t["y"])
+            direction = "clockwise" if t["delta"] > 0 else "counter-clockwise"
+            deg = abs(int(t["delta"]))
+            lines.append(
+                f"  At pixel ({tx},{ty}): {deg}° {direction} arc. Arrowhead at arc end."
+            )
+        lines.append("")
+
+    lines += [
+        f"END MARKER: small white chevron (~14px) at pixel ({ex0},{ey0}).",
+        "",
+        "━━━ ABSOLUTE RULES — no exceptions ━━━",
+        "",
+        "• NOTHING overlaps: arrows, badges, brackets, labels, markers must each have",
+        "  ≥8px clearance from every other element.",
+        "• Badge numbers must be large enough to read at a glance (minimum 12px font).",
+        "• Arrow lines must not cross each other except at their defined shared endpoints.",
+        "• Label pills must be fully inside the canvas (do not clip at edges).",
+        "• Drop shadow (2px offset, 50% opacity black) behind every arrow and badge.",
+        "• This image is shown to 12-year-old students — perfect clarity is mandatory.",
+    ]
+    return "\n".join(lines)
+
+
+def build_robot_annotation_prompt(
+    path_steps: list[dict],
+    step_labels: dict[int, str],
+    grid_bounds: dict,
+) -> str:
+    """Text prompt for Gemini image-gen: one annotated image showing all robot steps."""
+    from collections import defaultdict
+
+    gx1 = grid_bounds.get("grid_x1", 0.1)
+    gy1 = grid_bounds.get("grid_y1", 0.1)
+    gx2 = grid_bounds.get("grid_x2", 0.9)
+    gy2 = grid_bounds.get("grid_y2", 0.9)
+
+    step_groups: dict[int, list[dict]] = defaultdict(list)
+    for step in path_steps:
+        step_groups[step["step_num"]].append(step)
+
+    lines = [
+        "Annotate the robot grid in this AlgoPython exercise screenshot.",
+        f"The grid occupies approximately x:[{gx1:.2f}–{gx2:.2f}], y:[{gy1:.2f}–{gy2:.2f}]"
+        " (fractions 0–1 from top-left of the full image).",
+        "",
+        "Draw colored arrows on the grid showing the robot's solution path — ALL steps in ONE image.",
+        "Place circled step numbers (① ② ③ …) in empty grid cells near each group of arrows.",
+        "",
+        "Steps to annotate:",
+    ]
+
+    for sn in sorted(step_groups.keys()):
+        group = step_groups[sn]
+        label = step_labels.get(sn, f"Étape {sn}")
+        direction = group[0].get("direction", "")
+        first, last = group[0], group[-1]
+        lines.append(
+            f"  • Step {sn} — {label} — {len(group)} move(s) {direction}"
+            f" from row {first.get('from_row')},col {first.get('from_col')}"
+            f" to row {last.get('to_row')},col {last.get('to_col')}"
+        )
+
+    lines += [
+        "",
+        "Rules:",
+        "- ONE image — all steps visible simultaneously",
+        "- Step 1 arrows = blue, step 2 = pink/purple, step 3 = orange, etc.",
+        "- Step number badges placed in empty grid cells (not over arrows, walls, or goal)",
+        "- Keep original grid, robot start, and goal cell fully visible",
+        "- Match the visual style of the reference images provided",
+    ]
+    return "\n".join(lines)
+
+
 def build_coherence_region_prompt(region_name: str, decomposition_summary: str) -> str:
     return COHERENCE_REGION_PROMPT.format(
         region_name=region_name,

@@ -469,6 +469,8 @@ def steps_to_drawings(
             "x1": round(x1, 4), "y1": round(y1, 4),
             "x2": round(x2, 4), "y2": round(y2, 4),
             "color": color, "dashed": False, "width": "normal",
+            "step_num":    step["step_num"],
+            "instruction": step.get("instruction", ""),
         })
 
     # ── One badge per step_num group (only when for-loop is present) ─────────

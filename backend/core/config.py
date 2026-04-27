@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     mistral_api_key: str = ""
     google_api_key: str = ""  # For Gemini + Imagen
+    open_ai_api_key: str = ""  # For OpenAI image generation (env var: OPEN_AI_API_KEY)
+
+    # OpenAI image generation model
+    openai_image_model: str = "gpt-image-2"
 
     # Claude orchestrator model
     orchestrator_model: str = "claude-sonnet-4-6"

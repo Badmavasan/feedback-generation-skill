@@ -110,6 +110,7 @@ class ImageCoherenceChecker:
         annotated_bytes: bytes,
         decomposition_summary: str,
         loops: list[dict],
+        reference_images: list[bytes] | None = None,
     ) -> dict:
         from google.genai import types
         from core.config import get_settings
@@ -119,15 +120,24 @@ class ImageCoherenceChecker:
         settings = get_settings()
         prompt = build_coherence_overall_prompt(decomposition_summary, loops)
 
+        contents: list = []
+        if reference_images:
+            contents.append(
+                "Reference annotation examples — use these to judge visual style, "
+                "decomposition clarity, and readability:"
+            )
+            for ref in reference_images:
+                contents.append(types.Part.from_bytes(data=ref, mime_type="image/png"))
+            contents.append("Now evaluate this annotated image:")
+        contents.append(types.Part.from_bytes(data=annotated_bytes, mime_type="image/png"))
+        contents.append(prompt)
+
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(
             None,
             lambda: client.models.generate_content(
                 model=settings.gemini_model,
-                contents=[
-                    prompt,
-                    types.Part.from_bytes(data=annotated_bytes, mime_type="image/png"),
-                ],
+                contents=contents,
                 config=types.GenerateContentConfig(
                     temperature=0.0,
                     max_output_tokens=512 + 4096,
@@ -152,6 +162,7 @@ class ImageCoherenceChecker:
         annotated_bytes: bytes,
         decomposition_summary: str,
         loops: list[dict],
+        reference_images: list[bytes] | None = None,
     ) -> dict:
         """
         Crop the annotated image into 4 regions, analyse each, then run an overall check.
@@ -178,7 +189,10 @@ class ImageCoherenceChecker:
         }
         region_results = {name: await task for name, task in region_tasks.items()}
 
-        overall = await self._analyse_overall(annotated_bytes, decomposition_summary, loops)
+        overall = await self._analyse_overall(
+            annotated_bytes, decomposition_summary, loops,
+            reference_images=reference_images,
+        )
 
         all_issues: list[str] = list(overall.get("issues", []))
         for rname, rdata in region_results.items():

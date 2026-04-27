@@ -17,6 +17,7 @@ from agents.relevance_checker import RelevanceChecker
 from agents.coherence_checker import CoherenceChecker
 from agents.image_coherence_checker import ImageCoherenceChecker
 from agents.claude_image_analyzer import ClaudeImageAnalyzer
+from agents.claude_design_analyzer import ClaudeDesignAnalyzer
 from feedback.gold import get_gold_examples
 from prompts.feedback import build_feedback_system_prompt, build_feedback_user_prompt
 from prompts.image import (
@@ -294,7 +295,8 @@ class ClaudeOrchestrator:
         self._relevance = RelevanceChecker()
         self._coherence = CoherenceChecker()
         self._img_coherence = ImageCoherenceChecker()
-        self._claude_analyzer = ClaudeImageAnalyzer()
+        self._claude_analyzer  = ClaudeImageAnalyzer()
+        self._design_analyzer  = ClaudeDesignAnalyzer()
 
     async def run(
         self,
@@ -544,28 +546,11 @@ class ClaudeOrchestrator:
                                 },
                                 duration_ms=gemini_ms,
                             )
-                        except Exception as img_exc:
-                            import traceback as _tb
-                            logger.error(
-                                "[orchestrator] generate_image_feedback FAILED: %s\n%s",
-                                img_exc, _tb.format_exc(),
-                            )
-                            result_content = json.dumps({
-                                "error": str(img_exc),
-                                "fallback": False,
-                                "hint": (
-                                    "Image annotation failed. Check that exercise_id is valid, "
-                                    "exercise_type is 'robot', and the description contains a "
-                                    "<map>...</map> block."
-                                ),
-                            })
-                            tc.log(
-                                agent="gemini",
-                                role="image",
-                                tool_name=tool_name,
-                                verdict="error",
-                                notes=str(img_exc),
-                            )
+                        except Exception:
+                            # All image pipeline failures propagate as HTTP 500.
+                            # The caller receives the real error (OpenAI, Gemini, config, etc.)
+                            # rather than a misleading hint.
+                            raise
 
                 # ── check_example_relevance ──────────────────────────────────
                 elif tool_name == "check_example_relevance":
@@ -744,18 +729,21 @@ class ClaudeOrchestrator:
         if exercise_type == "robot":
             annotated_bytes, xml_description, decomposition_summary, iterations = \
                 await self._run_robot_pipeline(base_image, ctx, decomposition_hint=decomposition_hint)
+        elif exercise_type == "design":
+            annotated_bytes, xml_description, decomposition_summary, iterations = \
+                await self._run_design_pipeline(base_image, ctx)
         else:
             logger.warning(
-                "[image_gen] exercise_type=%r is not 'robot' — annotation pipeline skipped, "
-                "returning base image unchanged. "
+                "[image_gen] exercise_type=%r is not 'robot' or 'design' — "
+                "annotation pipeline skipped, returning base image unchanged. "
                 "Check that: (1) exercise_id is provided, (2) exercise was found in DB, "
-                "(3) exercise_type column is 'Robot'/'robot' in AlgoPython DB.",
+                "(3) exercise_type column is 'Robot'/'robot' or 'Design'/'design'.",
                 exercise_type or "(empty)",
             )
-            annotated_bytes   = base_image
-            xml_description   = ""
+            annotated_bytes       = base_image
+            xml_description       = ""
             decomposition_summary = ""
-            iterations        = 1
+            iterations            = 1
 
         images_dir = Path(settings.generated_images_dir)
         images_dir.mkdir(parents=True, exist_ok=True)
@@ -907,8 +895,218 @@ class ClaudeOrchestrator:
                 return base_image, xml_desc, summary, iteration
         else:
             iteration = 1
-
         logger.info("[robot_pipeline] annotations drawn successfully (iteration %d)", iteration)
+        return rendered, xml_desc, summary, iteration
+
+
+    async def _generate_design_image_prompt(
+        self,
+        data_pack: str,
+        n_steps: int,
+    ) -> str:
+        """Use Claude Opus 4.6 to craft a pixel-precise, non-overlapping image prompt.
+
+        data_pack: output of build_design_annotation_prompt() — all pixel coords + colors.
+        Returns a detailed prompt string ready for the OpenAI image generation model.
+        """
+        system = """\
+You are an expert visual designer for AlgoPython, an educational coding platform for K12 students.
+
+TASK
+Given turtle path data with pixel coordinates, write a COMPLETE, DETAILED prompt
+for OpenAI's image generation model to produce a clean decomposition annotation image.
+
+═══ VISUAL STYLE (match AlgoPython reference images exactly) ═══
+• Canvas: 1024×1024 px. Background: solid dark charcoal (#1a1a2e).
+  Grid: faint purple lines (#3a2a4a, 1px) forming equal square cells.
+• Start marker: solid yellow pentagon chevron (~22px), pointing in direction of first arrow.
+• ARROWS — 4px thick, solid, with filled arrowhead at endpoint:
+    Orange  (#F97316) — direct avancer / arc calls (approach / transition paths).
+    Blue    (#3B82F6) — 1st user function call.
+    Pink    (#EC4899) — 2nd user function call.
+    Teal    (#14B8A6) — 3rd user function call.
+  Drop shadow: 2px offset, 50% opacity black, behind every arrow.
+• HEXAGONAL BADGES — per segment midpoint:
+    ~14px radius hexagon. Colored fill matching the arrow. White bold number inside.
+    Drop shadow: 2px offset.
+• CORNER BRACKETS — for every user-function bounding box:
+    White dashed ⌐¬LJ brackets, ~18px arm length, 2px thick, at the 4 corners of the bbox.
+• LABEL PILLS — for every user-function step:
+    White rounded-rectangle, bold dark text, e.g. "Étape 2 : triangle()".
+    Placed OUTSIDE the bounding box in a clear canvas area.
+• TURN INDICATORS — at every turn point:
+    Small white curved arc, ~11px radius, with arrowhead at arc end.
+    Clockwise or counter-clockwise as specified.
+• END MARKER: small white chevron (~14px).
+
+═══ ANTI-OVERLAP RULES (ABSOLUTE — no exceptions) ═══
+1. No arrow may cross or touch another arrow except at their shared endpoint.
+2. Every badge must have ≥10px of clearance from every arrow line and from every other badge.
+3. Every bracket arm must have ≥8px clearance from every arrow and every badge.
+4. Every label pill must be in empty canvas space — ≥12px from any arrow, badge, or bracket.
+5. For each element, explicitly state its center pixel and list which nearby elements it must not touch.
+6. If two elements would conflict, shift the label/badge further out until clear.
+
+═══ OUTPUT FORMAT ═══
+Write a single comprehensive prompt for OpenAI's image model.
+Structure it as:
+
+  CANVAS SETUP
+  [Describe background and grid]
+
+  ELEMENT Z-ORDER (bottom to top)
+  1. Background + grid
+  2. Turtle path outline (optional faint dark-red shape)
+  3. Arrow lines + arrowheads (per phase, with exact pixel coordinates)
+  4. Badges (hexagonal, per segment midpoint, with clearance notes)
+  5. Corner brackets (per function bbox)
+  6. Label pills (per function step)
+  7. Turn indicators
+  8. Start / end markers
+
+  For each element: "Draw X at pixel (px,py). Do not place any other element within N px of this."
+
+The prompt must be self-contained — the image model must reproduce the image exactly from the prompt alone.
+This image is shown to 12-year-old students. Clarity and readability are paramount."""
+
+        user = f"""\
+Here is the turtle path data to visualize (canvas 1024×1024 px):
+
+{data_pack}
+
+Write the complete image generation prompt as described.
+ALL {n_steps} steps must be visible simultaneously in ONE image.
+Every arrow, badge, bracket, label, and marker must have explicit pixel coordinates.
+No elements may overlap. State clearance distances explicitly for each element."""
+
+        response = await self._client.messages.create(
+            model="claude-opus-4-6",
+            max_tokens=4096,
+            system=system,
+            messages=[{"role": "user", "content": user}],
+        )
+        return response.content[0].text.strip()
+
+    async def _run_design_pipeline(
+        self,
+        base_image: bytes,
+        ctx: dict,
+    ) -> tuple[bytes, str, str, int]:
+        """Design exercise annotation pipeline (design-only — robot is untouched).
+
+        1. trace_design_path()             — deterministic AST tracing (0 API calls)
+        2. design_to_drawings()            — PIL drawings for xml_desc only (0 API calls)
+        3. build_design_annotation_prompt  — pixel-precise data pack (0 API calls)
+        4. Claude Opus 4.6                 — crafts detailed non-overlapping image prompt
+        5. OpenAI gpt-image-2              — generates standalone dark canvas image
+        6. check_annotation_relevance      — Gemini vision quality guard
+        Raises RuntimeError (→ HTTP 500) if OpenAI returns None or relevance score < 0.30.
+        No PIL fallback — failures surface as 500 with a detailed error message.
+
+        Returns (annotated_bytes, xml_description, summary, iterations_used).
+        """
+        from agents.gemini_agent import (
+            draw_annotations, generate_image_openai, check_annotation_relevance,
+        )
+        from robot.design_computer import trace_design_path, design_to_drawings, has_for_loop
+        from prompts.image import build_design_annotation_prompt
+
+        exercise  = ctx.get("exercise") or {}
+        language  = ctx.get("language", "fr")
+        solutions = exercise.get("possible_solutions") or []
+
+        logger.info(
+            "[design_pipeline] exercise_id=%r  solutions=%d",
+            ctx.get("exercise_id"), len(solutions),
+        )
+
+        if not solutions:
+            logger.warning("[design_pipeline] no solutions — returning base image")
+            return base_image, "", "No solution available", 1
+
+        solution  = solutions[0]
+        segments, turn_events = trace_design_path(solution)
+
+        if not segments:
+            logger.error("[design_pipeline] trace_design_path returned no segments")
+            return base_image, "", "No segments traced", 1
+
+        show_badges = has_for_loop(solution)
+        n_steps     = len({seg["step_num"] for seg in segments})
+
+        # ── Step 1: PIL drawings (computed for xml_desc only — NOT used as fallback) ─
+        canvas_bounds = await self._design_analyzer.analyze_image(base_image)
+        drawings, xml_desc = design_to_drawings(
+            segments, turn_events, canvas_bounds, show_badge_numbers=show_badges,
+        )
+        _log_drawing_types(drawings, "[design_pipeline] drawings")
+
+        # ── Step 2: Build pixel-precise data pack ─────────────────────────────
+        step_labels = _build_design_step_labels(segments, language)
+        data_pack   = build_design_annotation_prompt(
+            segments, turn_events, step_labels, canvas_bounds,
+        )
+        logger.info("[design_pipeline] data pack: %d chars, %d steps", len(data_pack), n_steps)
+
+        # ── Step 3: Claude Opus 4.6 → detailed non-overlapping image prompt ──
+        image_prompt = await self._generate_design_image_prompt(data_pack, n_steps)
+        logger.info("[design_pipeline] Opus prompt: %d chars", len(image_prompt))
+
+        # ── Step 4: OpenAI image generation ──────────────────────────────────
+        ref_images = _load_design_reference_images()
+        try:
+            rendered = await generate_image_openai(image_prompt)
+        except Exception as exc:
+            raise RuntimeError(
+                f"OpenAI image generation API error: {exc}  "
+                f"model={self._settings.openai_image_model}"
+            ) from exc
+        iteration  = 1
+
+        if rendered is None:
+            raise RuntimeError(
+                "Design image generation failed: OpenAI image model returned no image. "
+                f"Model={self._settings.openai_image_model}  Steps={n_steps}  "
+                f"Prompt length={len(image_prompt)} chars. "
+                "Check OPEN_AI_API_KEY, model availability, and backend logs for the exact API error."
+            )
+
+        # ── Step 5: Relevance check ───────────────────────────────────────────
+        rel = await check_annotation_relevance(rendered, None, n_steps=n_steps)
+        logger.info(
+            "[design_pipeline] relevance score=%.2f arrows=%s labels=%s issues=%s",
+            rel["score"], rel.get("has_arrows"), rel.get("has_labels"), rel.get("issues", []),
+        )
+        if rel["score"] < 0.30:
+            raise RuntimeError(
+                f"Design image generation failed: relevance check rejected the image "
+                f"(score={rel['score']:.2f}, issues={rel.get('issues', [])}). "
+                f"The OpenAI model generated an image but it does not show the expected "
+                f"decomposition steps. Check the image prompt sent to Opus 4.6 and the "
+                f"data pack contents in the backend logs."
+            )
+
+        summary = (
+            f"Design path: {len(segments)} segment(s), {len(turn_events)} turn(s), "
+            f"{n_steps} step(s). Traced deterministically from solution[0]."
+        )
+
+        # ── Step 6: Gemini coherence check ───────────────────────────────────
+        if ref_images:
+            try:
+                coh = await self._img_coherence.check(
+                    rendered, summary, loops=[],
+                    reference_images=ref_images,
+                )
+                logger.info(
+                    "[design_pipeline] coherence: approved=%s score=%.2f issues=%s",
+                    coh.get("approved"), coh.get("overall_score"),
+                    coh.get("issues", [])[:2],
+                )
+            except Exception as exc:
+                logger.warning("[design_pipeline] coherence check failed: %s", exc)
+
+        logger.info("[design_pipeline] done (iteration=%d)", iteration)
         return rendered, xml_desc, summary, iteration
 
 
@@ -922,3 +1120,80 @@ def _log_drawing_types(drawings: list[dict], prefix: str) -> None:
                     ", ".join(f"{k}×{v}" for k, v in counts.items()))
     else:
         logger.error("%s: EMPTY", prefix)
+
+
+_DIR_FR = {"right": "droite", "left": "gauche", "down": "bas", "up": "haut"}
+_PRIM_FR = frozenset({"droite","gauche","haut","bas","avancer","arc",
+                       "right","left","up","down"})
+
+
+def _build_robot_step_labels(path_steps: list[dict], language: str = "fr") -> dict[int, str]:
+    """Build step_num → label mapping from robot path steps.
+
+    Example: step 1 has 3 right moves → "Étape 1 : droite(3)"
+             step 2 has user fn 'f'   → "Étape 2 : f()"
+    """
+    from collections import defaultdict
+    groups: dict[int, list[dict]] = defaultdict(list)
+    for step in path_steps:
+        groups[step["step_num"]].append(step)
+
+    labels: dict[int, str] = {}
+    for sn, group in groups.items():
+        instr = group[0].get("instruction", "")
+        if instr in _PRIM_FR:
+            dir_name = group[0].get("direction", instr)
+            fr_prim  = _DIR_FR.get(dir_name, instr)
+            labels[sn] = f"Étape {sn} : {fr_prim}({len(group)})"
+        else:
+            labels[sn] = f"Étape {sn} : {instr}()"
+    return labels
+
+
+def _build_design_step_labels(segments: list[dict], language: str = "fr") -> dict[int, str]:
+    """Build step_num → label mapping from design segments.
+
+    Direct avancer calls get a plain "Étape N" label.
+    User function calls get "Étape N : fname()".
+    """
+    labels: dict[int, str] = {}
+    for seg in segments:
+        sn    = seg.get("step_num")
+        instr = seg.get("instruction", "")
+        if sn is not None and sn not in labels:
+            labels[sn] = (
+                f"Étape {sn} : {instr}()"
+                if instr and instr not in _PRIM_FR
+                else f"Étape {sn}"
+            )
+    return labels
+
+
+def _load_design_reference_images(max_images: int = 3) -> list[bytes]:
+    """Load design exercise reference images to pass to Gemini as annotation style context.
+
+    Prefers F_B*_DECOMPOSE.png files (full decomposition examples) over body/iteration images.
+    Falls back gracefully if the directory doesn't exist or images can't be read.
+    """
+    from pathlib import Path
+    from core.config import get_settings
+    try:
+        settings  = get_settings()
+        ref_dir   = Path(settings.generated_images_dir).parent / "reference_images" / "design"
+        # Prefer decompose examples first, then any remaining images
+        preferred = sorted(ref_dir.glob("F_B*_DECOMPOSE.png"))
+        others    = sorted(p for p in ref_dir.glob("*.png") if p not in set(preferred))
+        candidates = preferred + others
+        result: list[bytes] = []
+        for path in candidates:
+            if len(result) >= max_images:
+                break
+            try:
+                result.append(path.read_bytes())
+            except OSError:
+                pass
+        logger.info("[design_ref_images] loaded %d/%d reference image(s)", len(result), max_images)
+        return result
+    except Exception as exc:
+        logger.warning("[design_ref_images] could not load reference images: %s", exc)
+        return []

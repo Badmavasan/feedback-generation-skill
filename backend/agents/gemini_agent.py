@@ -4,10 +4,15 @@ from __future__ import annotations
 import asyncio
 import io
 import json
+import logging
 import math
 
 from agents.base import BaseAgent
 from core.config import get_settings
+
+logger = logging.getLogger(__name__)
+
+_IMAGE_GEN_MODEL = "gemini-2.0-flash-exp"
 
 
 # ── Color palette ──────────────────────────────────────────────────────────────
@@ -23,6 +28,8 @@ _COLORS: dict[str, tuple[int, int, int]] = {
     "purple": (168, 85, 247),
     "teal":   (20, 184, 166),
     "rose":   (244, 63, 94),
+    "grey":   (160, 160, 160),
+    "gray":   (160, 160, 160),
 }
 
 
@@ -247,6 +254,66 @@ def draw_annotations(image_bytes: bytes, drawings: list[dict]) -> bytes:
             else:
                 _hq_badge(draw, x, y, d.get("text", ""), c, r, f)
 
+        elif dtype == "line":
+            x1 = int(d.get("x1", 0.1) * W)
+            y1 = int(d.get("y1", 0.1) * H)
+            x2 = int(d.get("x2", 0.5) * W)
+            y2 = int(d.get("y2", 0.5) * H)
+            w_factor = _width_factors.get((d.get("width") or "normal").lower(), 1.0)
+            s = max(2, int(stroke * w_factor))
+            draw.line([(x1 + 2, y1 + 2), (x2 + 2, y2 + 2)], fill=(0, 0, 0, 70), width=s + 2)
+            draw.line([(x1, y1), (x2, y2)], fill=(*c, 248), width=s)
+
+        elif dtype == "turn_arc":
+            # Small curved arc at a turtle turn point, with arrowhead showing turn direction.
+            # Angles follow our convention: 0°=right, positive=clockwise (screen y-down).
+            # PIL arc: same convention — start/end in degrees, clockwise from right.
+            cx      = int(d.get("x", 0.5) * W)
+            cy      = int(d.get("y", 0.5) * H)
+            r       = int(d.get("radius", 0.025) * min(W, H))
+            r       = max(8, min(r, 40))
+            fa      = d.get("from_angle", 0.0)
+            ta      = d.get("to_angle",   0.0)
+            delta   = d.get("delta", 0.0)
+            s       = max(2, stroke - 1)
+            bbox    = [(cx - r, cy - r), (cx + r, cy + r)]
+
+            if delta >= 0:
+                # Clockwise: PIL arc from fa to ta
+                pil_start, pil_end = fa % 360, ta % 360
+                if pil_end <= pil_start:
+                    pil_end += 360
+            else:
+                # Counter-clockwise: PIL arc from ta to fa (draws the right minor arc)
+                pil_start, pil_end = ta % 360, fa % 360
+                if pil_end <= pil_start:
+                    pil_end += 360
+
+            # Shadow + colored arc
+            draw.arc([(cx - r + 2, cy - r + 2), (cx + r + 2, cy + r + 2)],
+                     pil_start, pil_end, fill=(0, 0, 0, 60), width=s + 1)
+            draw.arc(bbox, pil_start, pil_end, fill=(*c, 230), width=s)
+
+            # Arrowhead at the end of the arc (tip = ta position on circle)
+            ta_rad   = math.radians(ta)
+            tip_x    = cx + r * math.cos(ta_rad)
+            tip_y    = cy + r * math.sin(ta_rad)
+            # Tangent direction: perpendicular to radius, in the direction of the turn
+            tang_deg = ta + (90 if delta >= 0 else -90)
+            tang_rad = math.radians(tang_deg)
+            head_len = max(6, r // 3)
+            head_w   = max(3, r // 5)
+            base_x   = tip_x - math.cos(tang_rad) * head_len
+            base_y   = tip_y - math.sin(tang_rad) * head_len
+            perp     = tang_rad + math.pi / 2
+            left_pt  = (int(base_x + math.cos(perp) * head_w),
+                        int(base_y + math.sin(perp) * head_w))
+            rght_pt  = (int(base_x - math.cos(perp) * head_w),
+                        int(base_y - math.sin(perp) * head_w))
+            tip_pt   = (int(tip_x), int(tip_y))
+            draw.polygon([tip_pt, left_pt, rght_pt],
+                         outline=(255, 255, 255, 200), fill=(*c, 220))
+
         elif dtype == "dot":
             x = int(d.get("x", 0.5) * W)
             y = int(d.get("y", 0.5) * H)
@@ -260,8 +327,401 @@ def draw_annotations(image_bytes: bytes, drawings: list[dict]) -> bytes:
     return buf.getvalue()
 
 
+def render_step_cell_grid(
+    base_image: bytes,
+    drawings: list[dict],
+    focus_bounds: dict,
+    step_labels: dict[int, str] | None = None,
+    max_cols: int = 3,
+    cell_px: int = 280,
+    label_h: int = 38,
+    gap: int = 6,
+) -> bytes:
+    """Compose a grid of cells — one per instruction step — for cell-by-cell decomposition.
+
+    Each cell shows:
+      • Previous steps drawn in faded grey (visual context)
+      • Current step drawn in full color (what this instruction does)
+      • A coloured label bar at the bottom naming the instruction
+
+    focus_bounds accepts either canvas_x1/y1/x2/y2 (design) or grid_x1/y1/x2/y2 (robot).
+    Drawings must carry "step_num" and "instruction" fields (set by steps_to_drawings and
+    design_to_drawings).  Unknown fields are silently ignored by draw_annotations.
+
+    Returns the grid composite as PNG bytes.
+    """
+    import PIL.Image
+    import PIL.ImageDraw
+    import PIL.ImageFont
+
+    # ── Normalise focus bounds ────────────────────────────────────────────────
+    def _g(k1, k2, k3, default):
+        return float(focus_bounds.get(k1, focus_bounds.get(k2, focus_bounds.get(k3, default))))
+
+    bx1 = _g("canvas_x1", "grid_x1", "x1", 0.1)
+    by1 = _g("canvas_y1", "grid_y1", "y1", 0.1)
+    bx2 = _g("canvas_x2", "grid_x2", "x2", 0.9)
+    by2 = _g("canvas_y2", "grid_y2", "y2", 0.9)
+    bw, bh = bx2 - bx1, by2 - by1
+
+    # ── Ordered step numbers from drawings that carry step_num ────────────────
+    step_nums = sorted({d["step_num"] for d in drawings if "step_num" in d})
+    if not step_nums:
+        return base_image
+
+    # ── Auto-build labels if not supplied ─────────────────────────────────────
+    _PRIM = frozenset({"droite","gauche","haut","bas","avancer","arc",
+                        "right","left","up","down"})
+    if step_labels is None:
+        step_labels = {}
+    for d in drawings:
+        sn = d.get("step_num")
+        if sn is not None and sn not in step_labels:
+            instr = d.get("instruction", "")
+            step_labels[sn] = (
+                f"Étape {sn} : {instr}()"
+                if instr and instr not in _PRIM
+                else f"Étape {sn}"
+            )
+
+    # ── Extract canvas / grid crop from base image ────────────────────────────
+    base_pil = PIL.Image.open(io.BytesIO(base_image)).convert("RGB")
+    BW, BH   = base_pil.size
+    crop = base_pil.crop((int(bx1*BW), int(by1*BH), int(bx2*BW), int(by2*BH)))
+
+    # Fit crop into cell_px × cell_px maintaining aspect ratio, pad with white
+    cw_px, ch_px = crop.size
+    scale_fit = min(cell_px / cw_px, cell_px / ch_px)
+    fit_w = int(cw_px * scale_fit)
+    fit_h = int(ch_px * scale_fit)
+    crop_resized = crop.resize((fit_w, fit_h), PIL.Image.LANCZOS)
+    canvas_bg = PIL.Image.new("RGB", (cell_px, cell_px), (255, 255, 255))
+    canvas_bg.paste(crop_resized, ((cell_px - fit_w) // 2, (cell_px - fit_h) // 2))
+
+    # ── Coordinate remapping: image fraction → cell-relative fraction ─────────
+    def remap(d: dict, faded: bool) -> dict:
+        out = dict(d)
+        dtype = out.get("type", "")
+        if dtype in ("arrow", "line"):
+            out["x1"] = (out["x1"] - bx1) / bw
+            out["y1"] = (out["y1"] - by1) / bh
+            out["x2"] = (out["x2"] - bx1) / bw
+            out["y2"] = (out["y2"] - by1) / bh
+        elif dtype in ("marker", "badge", "dot"):
+            out["x"] = (out["x"] - bx1) / bw
+            out["y"] = (out["y"] - by1) / bh
+        elif dtype == "turn_arc":
+            out["x"] = (out["x"] - bx1) / bw
+            out["y"] = (out["y"] - by1) / bh
+            out["radius"] = out.get("radius", 0.025) / bw
+        if faded:
+            out["color"] = "grey"
+            out["width"] = "thin"
+        return out
+
+    # ── Font for labels ───────────────────────────────────────────────────────
+    font_paths = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
+    ]
+    def _font(size):
+        f = PIL.ImageFont.load_default()
+        for fp in font_paths:
+            try:
+                f = PIL.ImageFont.truetype(fp, size)
+                break
+            except (IOError, OSError):
+                continue
+        return f
+
+    label_font = _font(max(10, label_h - 14))
+    cell_h_total = cell_px + label_h
+
+    # ── Render one cell per step ──────────────────────────────────────────────
+    cells: list[PIL.Image.Image] = []
+
+    for current_step in step_nums:
+        # Drawings for this cell
+        faded_draws    = [remap(d, faded=True)  for d in drawings
+                          if d.get("step_num", -1) < current_step]
+        current_draws  = [remap(d, faded=False) for d in drawings
+                          if d.get("step_num") == current_step]
+
+        cell_bytes = draw_annotations(
+            _pil_to_bytes(canvas_bg),
+            faded_draws + current_draws,
+        )
+        cell_pil = PIL.Image.open(io.BytesIO(cell_bytes)).convert("RGBA")
+
+        # Thin border
+        border_draw = PIL.ImageDraw.Draw(cell_pil)
+        border_draw.rectangle([(0, 0), (cell_px - 1, cell_px - 1)],
+                               outline=(180, 180, 180, 255), width=2)
+
+        # Label bar
+        label_instr = next(
+            (d.get("instruction", "") for d in drawings if d.get("step_num") == current_step),
+            ""
+        )
+        label_color  = _color(next(
+            (d.get("color", "blue") for d in drawings
+             if d.get("step_num") == current_step and d.get("type") in ("arrow","line")),
+            "blue",
+        ))
+        label_text = step_labels.get(current_step, f"Étape {current_step}")
+
+        # Extend canvas for label bar
+        full_cell = PIL.Image.new("RGBA", (cell_px, cell_h_total), (255, 255, 255, 255))
+        full_cell.paste(cell_pil, (0, 0))
+        ldraw = PIL.ImageDraw.Draw(full_cell)
+        ldraw.rectangle([(0, cell_px), (cell_px, cell_h_total)],
+                         fill=(*label_color, 230))
+        ldraw.text((cell_px // 2, cell_px + label_h // 2), label_text,
+                    font=label_font, fill=(255, 255, 255, 255), anchor="mm")
+
+        cells.append(full_cell.convert("RGB"))
+
+    # ── Compose grid ──────────────────────────────────────────────────────────
+    n    = len(cells)
+    cols = min(max_cols, n)
+    rows = math.ceil(n / cols)
+
+    grid_w = cols * cell_px + (cols - 1) * gap
+    grid_h = rows * cell_h_total + (rows - 1) * gap
+    grid   = PIL.Image.new("RGB", (grid_w, grid_h), (215, 215, 215))
+
+    for i, cell in enumerate(cells):
+        row, col = divmod(i, cols)
+        grid.paste(cell, (col * (cell_px + gap), row * (cell_h_total + gap)))
+
+    buf = io.BytesIO()
+    grid.save(buf, format="PNG")
+    return buf.getvalue()
+
+
+def _pil_to_bytes(img) -> bytes:
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return buf.getvalue()
+
+
 # Backwards-compatibility alias (old code used render_annotations)
 render_annotations = draw_annotations
+
+
+async def generate_image_openai(
+    prompt: str,
+    model: str | None = None,
+    size: str = "1024x1024",
+    quality: str = "high",
+) -> bytes | None:
+    """Generate a standalone image using OpenAI's image generation model.
+
+    Returns PNG bytes on success, None on failure.
+    model defaults to settings.openai_image_model (gpt-image-2).
+    """
+    import base64 as _b64
+    from openai import AsyncOpenAI
+
+    settings = get_settings()
+    _model = model or settings.openai_image_model
+    client  = AsyncOpenAI(api_key=settings.open_ai_api_key)
+
+    response = await client.images.generate(
+        model=_model,
+        prompt=prompt,
+        n=1,
+        size=size,
+        quality=quality,
+    )
+    img = response.data[0]
+
+    if getattr(img, "b64_json", None):
+        raw = _b64.b64decode(img.b64_json)
+        logger.info(
+            "[generate_image_openai] success via b64 — %d bytes  model=%s",
+            len(raw), _model,
+        )
+        return raw
+
+    if getattr(img, "url", None):
+        import httpx as _httpx
+        async with _httpx.AsyncClient(timeout=60) as http:
+            r = await http.get(img.url)
+            r.raise_for_status()
+        logger.info(
+            "[generate_image_openai] success via url — %d bytes  model=%s",
+            len(r.content), _model,
+        )
+        return r.content
+
+    raise RuntimeError(
+        f"OpenAI image model '{_model}' returned a response with no image data. "
+        "Check the model name and API account permissions."
+    )
+
+
+async def check_annotation_relevance(
+    generated_image: bytes,
+    base_image: bytes | None,
+    n_steps: int,
+) -> dict:
+    """Verify that the generated image actually contains useful annotations.
+
+    Two checks in one call:
+      1. Pixel-distance guard — images_visually_identical() when base_image is provided.
+         Skipped for standalone generation (base_image=None).
+      2. Gemini vision relevance check — does the image show colored arrows,
+         corner brackets, and step labels matching n_steps?
+
+    Returns:
+      {
+        "identical":    bool   — True when generated == base (no change at all),
+        "has_arrows":   bool,
+        "has_labels":   bool,
+        "score":        float  0–1,
+        "issues":       list[str],
+      }
+    """
+    result: dict = {
+        "identical":  False,
+        "has_arrows": False,
+        "has_labels": False,
+        "score":      0.0,
+        "issues":     [],
+    }
+
+    # Fast pixel check — only meaningful when we annotated an existing image
+    if base_image is not None and images_visually_identical(base_image, generated_image):
+        result["identical"] = True
+        result["issues"].append("generated image is pixel-identical to base — model made no changes")
+        return result
+
+    # Claude vision relevance check
+    import base64 as _b64
+    import anthropic
+
+    settings = get_settings()
+    client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+
+    prompt = (
+        f"This image is a standalone decomposition annotation for an AlgoPython design exercise. "
+        f"It should show {n_steps} decomposition steps on a dark canvas (#1a1a2e background) "
+        f"with colored arrows (orange, blue, pink, or teal), hexagonal step-number badges, "
+        f"white dashed corner brackets around function call regions, and label pills.\n\n"
+        "Evaluate it and return a JSON object with exactly these keys:\n"
+        "  has_arrows: bool — are there clearly visible colored arrows?\n"
+        "  has_labels: bool — are there step badges or label pills?\n"
+        "  has_brackets: bool — are there corner bracket markers?\n"
+        f"  steps_visible: int — how many distinct annotated steps can you count (expect {n_steps})?\n"
+        "  score: float 0–1 — overall annotation quality (1=all steps annotated clearly).\n"
+        "  issues: list of strings — what is missing or wrong.\n"
+        "Return ONLY the JSON object, no other text."
+    )
+
+    b64_img = _b64.standard_b64encode(generated_image).decode()
+    try:
+        response = await client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=512,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": b64_img}},
+                    {"type": "text", "text": prompt},
+                ],
+            }],
+        )
+        raw = response.content[0].text.strip()
+        # Strip markdown fences if present
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        parsed = json.loads(raw)
+        result["has_arrows"]  = bool(parsed.get("has_arrows", False))
+        result["has_labels"]  = bool(parsed.get("has_labels", False))
+        result["score"]       = float(parsed.get("score", 0.0))
+        result["issues"]      = list(parsed.get("issues", []))
+        logger.info(
+            "[check_annotation_relevance] score=%.2f arrows=%s labels=%s steps_visible=%s",
+            result["score"], result["has_arrows"], result["has_labels"],
+            parsed.get("steps_visible", "?"),
+        )
+    except Exception as exc:
+        logger.warning("[check_annotation_relevance] vision check failed: %s", exc)
+        result["issues"].append(str(exc))
+
+    return result
+
+
+async def generate_annotated_image(
+    base_image: bytes | None,
+    annotation_prompt: str,
+    reference_images: list[bytes] | None = None,
+    model: str = _IMAGE_GEN_MODEL,
+) -> bytes | None:
+    """Generate (or annotate) an image using Gemini image generation.
+
+    base_image=None  → standalone generation from scratch (dark canvas, no screenshot)
+    base_image=bytes → annotate an existing image
+
+    Reference images are shown as style examples regardless of mode.
+    Returns PNG bytes, or None on failure (caller should fall back to PIL draw).
+    """
+    from google.genai import types
+    from google import genai
+
+    client = genai.Client(api_key=get_settings().google_api_key)
+
+    contents: list = []
+    if reference_images:
+        contents.append(
+            "These are AlgoPython reference decomposition images. "
+            "Reproduce their exact visual style (dark background, colored arrows, white badges, corner brackets):"
+        )
+        for ref in reference_images:
+            contents.append(types.Part.from_bytes(data=ref, mime_type="image/png"))
+
+    if base_image is not None:
+        contents.append("Base image to annotate:")
+        contents.append(types.Part.from_bytes(data=base_image, mime_type="image/png"))
+
+    contents.append(annotation_prompt)
+
+    def _call() -> bytes | None:
+        response = client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                response_modalities=["IMAGE", "TEXT"],
+                temperature=1.0,
+            ),
+        )
+        for candidate in response.candidates or []:
+            for part in candidate.content.parts or []:
+                inline = getattr(part, "inline_data", None)
+                if inline and getattr(inline, "data", None):
+                    return inline.data
+        return None
+
+    loop = asyncio.get_event_loop()
+    try:
+        image_bytes = await loop.run_in_executor(None, _call)
+        if image_bytes:
+            logger.info(
+                "[generate_annotated_image] success — %d bytes  model=%s  standalone=%s",
+                len(image_bytes), model, base_image is None,
+            )
+        else:
+            logger.warning(
+                "[generate_annotated_image] model returned no image part  model=%s", model
+            )
+        return image_bytes
+    except Exception as exc:
+        logger.warning("[generate_annotated_image] failed: %s  model=%s", exc, model)
+        return None
 
 
 # ── Response text extractor (handles thinking-model None text) ─────────────────
