@@ -40,6 +40,9 @@ class Settings(BaseSettings):
     # Gemini image generation model (supports image input + image output)
     nano_banana_model: str = "gemini-2.5-flash-image"
 
+    # Google Imagen model
+    imagen_model: str = "imagen-3.0-generate-002"
+
     # Image annotation: max iterations before accepting best result
     image_max_iterations: int = 3
 
