@@ -58,9 +58,9 @@ async def generate_feedback(
             from db.algopython_crud import parse_correct_codes, parse_robot_map_from_description
             task_types = await get_exercise_task_types(algopython_db, algo_ex.id)
             solutions = parse_correct_codes(algo_ex.correct_codes)
-            robot_map = parse_robot_map_from_description(algo_ex.description)
             exercise_type_raw = algo_ex.exercise_type or ""
             is_robot = exercise_type_raw.lower() == "robot"
+            robot_map = parse_robot_map_from_description(algo_ex.description) if is_robot else None
 
             logger.info(
                 "[generator] exercise_id=%s  type=%r  solutions=%d  robot_map=%s",
