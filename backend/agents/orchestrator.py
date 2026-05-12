@@ -1001,7 +1001,7 @@ No elements may overlap. State clearance distances explicitly for each element."
         3. build_design_annotation_prompt  — pixel-precise data pack (0 API calls)
         4. Claude Opus 4.6                 — crafts detailed non-overlapping image prompt
         5. OpenAI gpt-image-2              — generates standalone dark canvas image
-        6. check_annotation_relevance      — Gemini vision quality guard
+        6. check_annotation_relevance      — Claude vision quality guard
         Raises RuntimeError (→ HTTP 500) if OpenAI returns None or relevance score < 0.30.
         No PIL fallback — failures surface as 500 with a detailed error message.
 
@@ -1093,7 +1093,7 @@ No elements may overlap. State clearance distances explicitly for each element."
             f"{n_steps} step(s). Traced deterministically from solution[0]."
         )
 
-        # ── Step 6: Gemini coherence check ───────────────────────────────────
+        # ── Step 6: Claude coherence check ───────────────────────────────────
         if ref_images:
             try:
                 coh = await self._img_coherence.check(

@@ -2,27 +2,27 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import io
 import json
+import re
 
 
-def _extract_text(response) -> str:
-    if response.text is not None:
-        return response.text
+def _parse_json(raw: str) -> dict:
     try:
-        for candidate in (response.candidates or []):
-            texts = []
-            for part in (candidate.content.parts or []):
-                if getattr(part, "thought", False):
-                    continue
-                text = getattr(part, "text", None)
-                if text:
-                    texts.append(text)
-            if texts:
-                return "".join(texts)
-    except Exception:
-        pass
-    return ""
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        match = re.search(r'\{.*\}', raw, re.DOTALL)
+        if match:
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                pass
+    return {}
+
+
+def _b64(image_bytes: bytes) -> str:
+    return base64.standard_b64encode(image_bytes).decode("utf-8")
 
 
 _REGIONS = {
@@ -44,12 +44,15 @@ class ImageCoherenceChecker:
 
     def __init__(self) -> None:
         self._client = None
+        self._model = None
 
     def _get_client(self):
         if self._client is None:
-            from google import genai
+            import anthropic
             from core.config import get_settings
-            self._client = genai.Client(api_key=get_settings().google_api_key)
+            settings = get_settings()
+            self._client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+            self._model = settings.orchestrator_model
         return self._client
 
     def _crop_region(self, pil_image, bbox: tuple[float, float, float, float]):
@@ -74,36 +77,35 @@ class ImageCoherenceChecker:
         region_bytes: bytes,
         decomposition_summary: str,
     ) -> dict:
-        from google.genai import types
-        from core.config import get_settings
         from prompts.image import build_coherence_region_prompt
 
         client = self._get_client()
-        settings = get_settings()
         prompt = build_coherence_region_prompt(region_name, decomposition_summary)
 
-        loop = asyncio.get_event_loop()
-        response = await loop.run_in_executor(
-            None,
-            lambda: client.models.generate_content(
-                model=settings.gemini_model,
-                contents=[
-                    prompt,
-                    types.Part.from_bytes(data=region_bytes, mime_type="image/png"),
+        response = await client.messages.create(
+            model=self._model,
+            max_tokens=512,
+            temperature=0.0,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": "image/png",
+                            "data": _b64(region_bytes),
+                        },
+                    },
+                    {"type": "text", "text": prompt},
                 ],
-                config=types.GenerateContentConfig(
-                    temperature=0.0,
-                    max_output_tokens=256 + 2048,
-                    response_mime_type="application/json",
-                    thinking_config=types.ThinkingConfig(thinking_budget=2048),
-                ),
-            ),
+            }],
         )
-        text = _extract_text(response)
-        try:
-            return json.loads(text)
-        except (json.JSONDecodeError, ValueError):
+        text = response.content[0].text
+        result = _parse_json(text)
+        if not result:
             return {"has_relevant_annotation": False, "is_readable": False, "issues": [text[:200]]}
+        return result
 
     async def _analyse_overall(
         self,
@@ -112,50 +114,57 @@ class ImageCoherenceChecker:
         loops: list[dict],
         reference_images: list[bytes] | None = None,
     ) -> dict:
-        from google.genai import types
-        from core.config import get_settings
         from prompts.image import build_coherence_overall_prompt
 
         client = self._get_client()
-        settings = get_settings()
         prompt = build_coherence_overall_prompt(decomposition_summary, loops)
 
-        contents: list = []
+        content: list = []
         if reference_images:
-            contents.append(
-                "Reference annotation examples — use these to judge visual style, "
-                "decomposition clarity, and readability:"
-            )
-            for ref in reference_images:
-                contents.append(types.Part.from_bytes(data=ref, mime_type="image/png"))
-            contents.append("Now evaluate this annotated image:")
-        contents.append(types.Part.from_bytes(data=annotated_bytes, mime_type="image/png"))
-        contents.append(prompt)
-
-        loop = asyncio.get_event_loop()
-        response = await loop.run_in_executor(
-            None,
-            lambda: client.models.generate_content(
-                model=settings.gemini_model,
-                contents=contents,
-                config=types.GenerateContentConfig(
-                    temperature=0.0,
-                    max_output_tokens=512 + 4096,
-                    response_mime_type="application/json",
-                    thinking_config=types.ThinkingConfig(thinking_budget=4096),
+            content.append({
+                "type": "text",
+                "text": (
+                    "Reference annotation examples — use these to judge visual style, "
+                    "decomposition clarity, and readability:"
                 ),
-            ),
+            })
+            for ref in reference_images:
+                content.append({
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/png",
+                        "data": _b64(ref),
+                    },
+                })
+            content.append({"type": "text", "text": "Now evaluate this annotated image:"})
+
+        content.append({
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": "image/png",
+                "data": _b64(annotated_bytes),
+            },
+        })
+        content.append({"type": "text", "text": prompt})
+
+        response = await client.messages.create(
+            model=self._model,
+            max_tokens=1024,
+            temperature=0.0,
+            messages=[{"role": "user", "content": content}],
         )
-        text = _extract_text(response)
-        try:
-            return json.loads(text)
-        except (json.JSONDecodeError, ValueError):
+        text = response.content[0].text
+        result = _parse_json(text)
+        if not result:
             approved = '"approved": true' in text.lower()
             return {
                 "approved": approved,
                 "overall_score": 0.7 if approved else 0.4,
                 "issues": [],
             }
+        return result
 
     async def check(
         self,
