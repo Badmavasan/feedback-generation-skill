@@ -1114,11 +1114,44 @@ def build_imagen_prompt(annotations: list[dict], caption: str, decomposition_sum
     )
 
 
+def _arrow_direction_label(x1: int, y1: int, x2: int, y2: int) -> str:
+    """Return a unicode directional label for the vector from (x1,y1) to (x2,y2)."""
+    dx, dy = x2 - x1, y2 - y1
+    if dx == 0 and dy == 0:
+        return "• (zero-length)"
+    if abs(dx) >= abs(dy):
+        return "→ RIGHT" if dx > 0 else "← LEFT"
+    return "↓ DOWN" if dy > 0 else "↑ UP"
+
+
+def compute_design_canvas_size(segments: list[dict]) -> str:
+    """Return the OpenAI image size string based on drawing aspect ratio and complexity.
+
+    Supported: "1024x1024", "1792x1024" (wide), "1024x1792" (tall).
+    Uses a wider/taller canvas when the turtle drawing is clearly non-square
+    or when there are many steps that would otherwise be cramped.
+    """
+    if not segments:
+        return "1024x1024"
+    all_tx = [s["x1"] for s in segments] + [s["x2"] for s in segments]
+    all_ty = [s["y1"] for s in segments] + [s["y2"] for s in segments]
+    span_x = max(all_tx) - min(all_tx) or 1.0
+    span_y = max(all_ty) - min(all_ty) or 1.0
+    ratio  = span_x / span_y
+    n_arrows = sum(1 for s in segments if s.get("pen_down", True))
+    if ratio > 1.4 or (n_arrows > 20 and ratio >= 1.0):
+        return "1792x1024"
+    if ratio < 0.72 or (n_arrows > 20 and ratio < 1.0):
+        return "1024x1792"
+    return "1024x1024"
+
+
 def _label_side(bx1: int, by1: int, bx2: int, by2: int,
-                canvas_w: int = 1024, margin: int = 80, pad: int = 30) -> str:
+                canvas_w: int = 1024, canvas_h: int = 1024,
+                margin: int = 80, pad: int = 30) -> str:
     """Choose which side of a bounding box has the most empty canvas space for a label."""
     space_top    = by1 - margin
-    space_bottom = canvas_w - by2 - margin
+    space_bottom = canvas_h - by2 - margin
     space_left   = bx1 - margin
     space_right  = canvas_w - bx2 - margin
     best = max(
@@ -1136,6 +1169,8 @@ def build_design_annotation_prompt(
     turn_events: list[dict],
     step_labels: dict[int, str],
     canvas_bounds: dict,  # kept for API compat; not used for standalone generation
+    canvas_w: int = 1024,
+    canvas_h: int = 1024,
 ) -> str:
     """Generate a pixel-precise prompt for STANDALONE decomposition annotation image.
 
@@ -1178,8 +1213,8 @@ def build_design_annotation_prompt(
     min_tx, max_tx = min(all_tx), max(all_tx)
     min_ty, max_ty = min(all_ty), max(all_ty)
 
-    # ── Canvas layout (1024×1024 matches OpenAI image model native resolution) ─
-    CANVAS_W, CANVAS_H = 1024, 1024
+    # ── Canvas layout — dimensions passed by caller (computed from drawing aspect ratio) ─
+    CANVAS_W, CANVAS_H = canvas_w, canvas_h
     PAD = 80
 
     span_x = max(max_tx - min_tx, 0.5)
@@ -1256,6 +1291,38 @@ def build_design_annotation_prompt(
         "",
     ]
 
+    # ── Complete arrow inventory ─────────────────────────────────────────────
+    # Flat list of every arrow in execution order so the image model can
+    # verify completeness and direction at a glance.
+    n_total_arrows = sum(len(step_segs[sn]) for sn in sorted(step_segs.keys()))
+    lines += [
+        f"━━━ COMPLETE ARROW INVENTORY — {n_total_arrows} arrows TOTAL ━━━",
+        "Every entry below MUST have exactly one arrow in the final image.",
+        "Each arrow is ONE-WAY: ONE filled arrowhead at TIP only, NONE at TAIL.",
+        "",
+    ]
+    arrow_idx = 0
+    for sn in sorted(step_segs.keys()):
+        _segs  = step_segs[sn]
+        _instr = _segs[0]["instruction"]
+        _cn    = color_name.get(_instr, _PRIM_COLOR)
+        _ch    = color_hex.get(_instr, _PRIM_HEX)
+        _label = step_labels.get(sn, f"Étape {sn}")
+        for seg in _segs:
+            arrow_idx += 1
+            p1i = px(seg["x1"], seg["y1"])
+            p2i = px(seg["x2"], seg["y2"])
+            dir_lbl = _arrow_direction_label(p1i[0], p1i[1], p2i[0], p2i[1])
+            lines.append(
+                f"  #{arrow_idx:03d}  [Step {sn}  {_cn} {_ch}]  {_label}"
+                f"  TAIL=({p1i[0]},{p1i[1]})  TIP=({p2i[0]},{p2i[1]})  {dir_lbl}"
+            )
+    lines += [
+        "",
+        f"END OF INVENTORY — {n_total_arrows} arrows required.",
+        "",
+    ]
+
     # ── Overlap warnings ─────────────────────────────────────────────────────
     all_warnings = []
     for (p1, p2), sns in overlapping_paths.items():
@@ -1310,7 +1377,7 @@ def build_design_annotation_prompt(
             # Find the side with most canvas space for the label.
             # Avoid reusing a y-position already claimed by another label
             # (prevents all left-side labels clustering at the same y).
-            side = _label_side(bx1, by1, bx2, by2, CANVAS_W)
+            side = _label_side(bx1, by1, bx2, by2, CANVAS_W, CANVAS_H)
             # Candidate positions per side
             candidates = {
                 "above": (bcx, by1 - 20),
@@ -1356,9 +1423,10 @@ def build_design_annotation_prompt(
             # Offset badge perpendicular to the arrow so it doesn't sit on the line
             is_horiz = abs(p2[1]-p1[1]) < abs(p2[0]-p1[0])
             badge_pos = (mid[0], mid[1] - 20) if is_horiz else (mid[0] + 20, mid[1])
+            dir_label = _arrow_direction_label(p1[0], p1[1], p2[0], p2[1])
             lines.append(
-                f"  Arrow: from ({p1[0]},{p1[1]}) → ({p2[0]},{p2[1]})."
-                f" Filled arrowhead at ({p2[0]},{p2[1]})."
+                f"  Arrow: TAIL=({p1[0]},{p1[1]}), TIP=({p2[0]},{p2[1]}). Direction: {dir_label}."
+                f" ONE filled arrowhead at TIP=({p2[0]},{p2[1]}) ONLY — NO arrowhead at TAIL."
             )
             lines.append(
                 f"  Step badge: hexagonal badge \"{sn}\" (white text on {cn}, ~13px radius)"
@@ -1376,9 +1444,12 @@ def build_design_annotation_prompt(
                 if key in overlapping_paths and len(overlapping_paths[key]) > 1:
                     other = [s for s in overlapping_paths[key] if s != sn]
                     overlap_note = f" ⚠ OFFSET 5px from step {other[0]}'s arrow on this path."
+                dir_label = _arrow_direction_label(p1[0], p1[1], p2[0], p2[1])
                 lines.append(
-                    f"  Arrow {i+1}: from ({p1[0]},{p1[1]}) → ({p2[0]},{p2[1]})."
-                    f" Filled arrowhead at ({p2[0]},{p2[1]}).{overlap_note}"
+                    f"  Arrow {i+1}/{len(segs)}: TAIL=({p1[0]},{p1[1]}), TIP=({p2[0]},{p2[1]})."
+                    f" Direction: {dir_label}."
+                    f" ONE filled arrowhead at TIP=({p2[0]},{p2[1]}) ONLY — NO arrowhead at TAIL."
+                    f"{overlap_note}"
                 )
 
         lines.append("")
@@ -1397,6 +1468,23 @@ def build_design_annotation_prompt(
 
     lines += [
         f"END MARKER: small white chevron (~14px) at pixel ({ex0},{ey0}).",
+        "",
+        "━━━ ARROW DIRECTIONALITY — CRITICAL ━━━",
+        "",
+        "• Every arrow in this image is a ONE-WAY arrow.",
+        "• Draw EXACTLY ONE filled triangular arrowhead at the TIP (destination end).",
+        "• The TAIL (start end) must have NO arrowhead, NO marker — just the plain line end.",
+        "• NEVER draw bidirectional arrows (arrowheads on both ends).",
+        "• The TAIL and TIP coordinates are listed explicitly above — follow them exactly.",
+        "• The direction symbol (→ ← ↑ ↓) above is the ground truth — match it.",
+        "",
+        "━━━ COMPLETENESS CHECK ━━━",
+        "",
+        f"• This image MUST contain exactly {n_total_arrows} arrows (see inventory above).",
+        "• Before finalizing: count all arrows drawn. If any are missing, add them.",
+        "• Every step in the inventory must be visible — the image is incomplete otherwise.",
+        "• If {n_total_arrows} arrows would be too cramped, scale the drawing area larger",
+        "  within the canvas rather than omitting arrows.",
         "",
         "━━━ ABSOLUTE RULES — no exceptions ━━━",
         "",

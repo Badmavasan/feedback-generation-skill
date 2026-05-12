@@ -922,7 +922,13 @@ for OpenAI's image generation model to produce a clean decomposition annotation 
 • Canvas: 1024×1024 px. Background: solid dark charcoal (#1a1a2e).
   Grid: faint purple lines (#3a2a4a, 1px) forming equal square cells.
 • Start marker: solid yellow pentagon chevron (~22px), pointing in direction of first arrow.
-• ARROWS — 4px thick, solid, with filled arrowhead at endpoint:
+• ARROWS — 4px thick, solid, STRICTLY UNIDIRECTIONAL:
+    Every arrow has EXACTLY ONE filled triangular arrowhead at the TIP (destination end) ONLY.
+    The TAIL (start end) must have NO arrowhead — just the plain line ending.
+    NEVER draw bidirectional arrows (arrowheads at both ends of a line).
+    The data pack specifies TAIL and TIP coordinates explicitly — follow them exactly.
+    The direction symbol (→ ← ↑ ↓) in the data pack is the ground truth.
+    Colors by instruction type:
     Orange  (#F97316) — direct avancer / arc calls (approach / transition paths).
     Blue    (#3B82F6) — 1st user function call.
     Pink    (#EC4899) — 2nd user function call.
@@ -948,6 +954,13 @@ for OpenAI's image generation model to produce a clean decomposition annotation 
 4. Every label pill must be in empty canvas space — ≥12px from any arrow, badge, or bracket.
 5. For each element, explicitly state its center pixel and list which nearby elements it must not touch.
 6. If two elements would conflict, shift the label/badge further out until clear.
+
+═══ COMPLETENESS RULE (ABSOLUTE) ═══
+The data pack contains a "COMPLETE ARROW INVENTORY" section listing every arrow with its
+TAIL coords, TIP coords, and direction symbol.  Your output prompt MUST instruct the image
+model to draw every single arrow in that inventory — no omissions.
+Include the total arrow count in your prompt so the image model can self-verify.
+If any arrow is missing from the generated image, the image is incorrect.
 
 ═══ OUTPUT FORMAT ═══
 Write a single comprehensive prompt for OpenAI's image model.
@@ -1011,7 +1024,7 @@ No elements may overlap. State clearance distances explicitly for each element."
             draw_annotations, generate_image_openai, check_annotation_relevance,
         )
         from robot.design_computer import trace_design_path, design_to_drawings, has_for_loop
-        from prompts.image import build_design_annotation_prompt
+        from prompts.image import build_design_annotation_prompt, compute_design_canvas_size
 
         exercise  = ctx.get("exercise") or {}
         language  = ctx.get("language", "fr")
@@ -1035,6 +1048,7 @@ No elements may overlap. State clearance distances explicitly for each element."
 
         show_badges = has_for_loop(solution)
         n_steps     = len({seg["step_num"] for seg in segments})
+        n_arrows    = sum(1 for s in segments if s.get("pen_down", True))
 
         # ── Step 1: PIL drawings (computed for xml_desc only — NOT used as fallback) ─
         canvas_bounds = await self._design_analyzer.analyze_image(base_image)
@@ -1045,10 +1059,16 @@ No elements may overlap. State clearance distances explicitly for each element."
 
         # ── Step 2: Build pixel-precise data pack ─────────────────────────────
         step_labels = _build_design_step_labels(segments, language)
+        canvas_size_str = compute_design_canvas_size(segments)
+        cw_px, ch_px    = (int(x) for x in canvas_size_str.split("x"))
         data_pack   = build_design_annotation_prompt(
             segments, turn_events, step_labels, canvas_bounds,
+            canvas_w=cw_px, canvas_h=ch_px,
         )
-        logger.info("[design_pipeline] data pack: %d chars, %d steps", len(data_pack), n_steps)
+        logger.info(
+            "[design_pipeline] data pack: %d chars, %d steps, %d arrows, canvas=%s",
+            len(data_pack), n_steps, n_arrows, canvas_size_str,
+        )
 
         # ── Step 3: Claude Opus 4.6 → detailed non-overlapping image prompt ──
         image_prompt = await self._generate_design_image_prompt(data_pack, n_steps)
@@ -1057,7 +1077,7 @@ No elements may overlap. State clearance distances explicitly for each element."
         # ── Step 4: OpenAI image generation ──────────────────────────────────
         ref_images = _load_design_reference_images()
         try:
-            rendered = await generate_image_openai(image_prompt)
+            rendered = await generate_image_openai(image_prompt, size=canvas_size_str)
         except Exception as exc:
             raise RuntimeError(
                 f"OpenAI image generation API error: {exc}  "
@@ -1068,21 +1088,28 @@ No elements may overlap. State clearance distances explicitly for each element."
         if rendered is None:
             raise RuntimeError(
                 "Design image generation failed: OpenAI image model returned no image. "
-                f"Model={self._settings.openai_image_model}  Steps={n_steps}  "
+                f"Model={self._settings.openai_image_model}  Steps={n_steps}  Arrows={n_arrows}  "
                 f"Prompt length={len(image_prompt)} chars. "
                 "Check OPEN_AI_API_KEY, model availability, and backend logs for the exact API error."
             )
 
-        # ── Step 5: Relevance check ───────────────────────────────────────────
-        rel = await check_annotation_relevance(rendered, None, n_steps=n_steps)
+        # ── Step 5: Relevance check — use total arrow count for completeness check ─
+        rel = await check_annotation_relevance(rendered, None, n_steps=n_arrows)
         logger.info(
-            "[design_pipeline] relevance score=%.2f arrows=%s labels=%s issues=%s",
-            rel["score"], rel.get("has_arrows"), rel.get("has_labels"), rel.get("issues", []),
+            "[design_pipeline] relevance score=%.2f arrows_visible=%s/%d "
+            "bidirectional=%s labels=%s issues=%s",
+            rel["score"],
+            rel.get("arrows_visible", "?"), n_arrows,
+            rel.get("bidirectional_arrows", "?"),
+            rel.get("has_labels"),
+            rel.get("issues", []),
         )
         if rel["score"] < 0.30:
             raise RuntimeError(
                 f"Design image generation failed: relevance check rejected the image "
-                f"(score={rel['score']:.2f}, issues={rel.get('issues', [])}). "
+                f"(score={rel['score']:.2f}, arrows_visible={rel.get('arrows_visible','?')}/{n_arrows}, "
+                f"bidirectional={rel.get('bidirectional_arrows','?')}, "
+                f"issues={rel.get('issues', [])}). "
                 f"The OpenAI model generated an image but it does not show the expected "
                 f"decomposition steps. Check the image prompt sent to Opus 4.6 and the "
                 f"data pack contents in the backend logs."

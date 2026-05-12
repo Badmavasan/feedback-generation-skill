@@ -585,11 +585,13 @@ async def check_annotation_relevance(
       }
     """
     result: dict = {
-        "identical":  False,
-        "has_arrows": False,
-        "has_labels": False,
-        "score":      0.0,
-        "issues":     [],
+        "identical":           False,
+        "has_arrows":          False,
+        "has_labels":          False,
+        "score":               0.0,
+        "issues":              [],
+        "arrows_visible":      0,
+        "bidirectional_arrows": 0,
     }
 
     # Fast pixel check — only meaningful when we annotated an existing image
@@ -607,16 +609,20 @@ async def check_annotation_relevance(
 
     prompt = (
         f"This image is a standalone decomposition annotation for an AlgoPython design exercise. "
-        f"It should show {n_steps} decomposition steps on a dark canvas (#1a1a2e background) "
-        f"with colored arrows (orange, blue, pink, or teal), hexagonal step-number badges, "
+        f"It should show a dark canvas (#1a1a2e background) with {n_steps} colored arrows "
+        f"(orange, blue, pink, or teal), hexagonal step-number badges, "
         f"white dashed corner brackets around function call regions, and label pills.\n\n"
+        "IMPORTANT — check arrow directionality:\n"
+        "  Each arrow must be ONE-WAY: a single filled triangular arrowhead at the TIP end only.\n"
+        "  An arrow with arrowheads on BOTH ends is a defect — list it in issues.\n\n"
         "Evaluate it and return a JSON object with exactly these keys:\n"
         "  has_arrows: bool — are there clearly visible colored arrows?\n"
         "  has_labels: bool — are there step badges or label pills?\n"
         "  has_brackets: bool — are there corner bracket markers?\n"
-        f"  steps_visible: int — how many distinct annotated steps can you count (expect {n_steps})?\n"
-        "  score: float 0–1 — overall annotation quality (1=all steps annotated clearly).\n"
-        "  issues: list of strings — what is missing or wrong.\n"
+        f"  arrows_visible: int — how many distinct arrows can you count (expect {n_steps})?\n"
+        "  bidirectional_arrows: int — how many arrows have arrowheads on BOTH ends (expect 0)?\n"
+        "  score: float 0–1 — overall quality. Deduct 0.1 per missing arrow, 0.15 per bidirectional arrow.\n"
+        "  issues: list of strings — what is missing or wrong (be specific).\n"
         "Return ONLY the JSON object, no other text."
     )
 
@@ -640,14 +646,17 @@ async def check_annotation_relevance(
             if raw.startswith("json"):
                 raw = raw[4:]
         parsed = json.loads(raw)
-        result["has_arrows"]  = bool(parsed.get("has_arrows", False))
-        result["has_labels"]  = bool(parsed.get("has_labels", False))
-        result["score"]       = float(parsed.get("score", 0.0))
-        result["issues"]      = list(parsed.get("issues", []))
+        result["has_arrows"]           = bool(parsed.get("has_arrows", False))
+        result["has_labels"]           = bool(parsed.get("has_labels", False))
+        result["score"]                = float(parsed.get("score", 0.0))
+        result["issues"]               = list(parsed.get("issues", []))
+        result["arrows_visible"]       = int(parsed.get("arrows_visible", parsed.get("steps_visible", 0)))
+        result["bidirectional_arrows"] = int(parsed.get("bidirectional_arrows", 0))
         logger.info(
-            "[check_annotation_relevance] score=%.2f arrows=%s labels=%s steps_visible=%s",
+            "[check_annotation_relevance] score=%.2f arrows=%s labels=%s "
+            "arrows_visible=%s bidirectional=%s",
             result["score"], result["has_arrows"], result["has_labels"],
-            parsed.get("steps_visible", "?"),
+            result["arrows_visible"], result["bidirectional_arrows"],
         )
     except Exception as exc:
         logger.warning("[check_annotation_relevance] vision check failed: %s", exc)
