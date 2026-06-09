@@ -1,0 +1,971 @@
+id,level,characteristics_combo,characteristics,exercise_id,exercise_type,exercise_title,task_type,error_tag,error_description,kc_name,kc_description,language,mode,has_image,validation_status,created_at,result_xml
+d0752dd0-3ced-4342-b44f-2fae2107fbb1,error,error_pointed,"[""error_pointed""]",,,,,FUNCTION_DEFINITION_UNNECESSARY_RETURN,"<!-- ================================================================= -->
+<!-- ERREURS DE DÉFINITION DE FONCTION                                  -->
+<!--                                                                    -->
+<!-- Principe général : erreurs portant sur l'écriture même d'une       -->
+<!-- définition de fonction (son nom, ses paramètres, son retour, son   -->
+<!-- corps) — par opposition aux erreurs sur les appels de fonction.    -->
+<!-- ================================================================= -->
+
+<tag_name>FUNCTION_DEFINITION_UNNECESSARY_RETURN</tag_name>
+<description>
+  La définition de fonction de l'élève contient une instruction `return`
+  inutile ou inappropriée. La fonction ne doit pas retourner de valeur
+  (fonction de type void/procédure), mais l'élève inclut une instruction
+  `return` avec ou sans valeur. Cela peut causer un comportement imprévu
+  ou une mauvaise compréhension du rôle de la fonction.
+  Cause typique chez le novice : confusion entre les fonctions qui
+  retournent une valeur et celles qui effectuent seulement une action
+  (affichage, modification d'état global, etc.).
+</description>
+<example>
+# student_code (return inutile)
+def afficher_carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+\treturn n
+
+# expected_code
+def afficher_carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+</example>",FO_1.1.1.4,"Déterminer, le cas échéant, les éléments à retourner par une fonction",fr,offline,f,generated,2026-04-30 00:22:56.652848,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>error</level>
+    <language>fr</language>
+    <generated_at>2026-04-30T00:23:27.865928+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_1.1.1.4</name>
+    <description>Déterminer, le cas échéant, les éléments à retourner par une fonction</description>
+  </knowledge_component>
+  <error_context>
+    <tag>FUNCTION_DEFINITION_UNNECESSARY_RETURN</tag>
+    <description>&lt;!-- ================================================================= --&gt;
+&lt;!-- ERREURS DE DÉFINITION DE FONCTION                                  --&gt;
+&lt;!--                                                                    --&gt;
+&lt;!-- Principe général : erreurs portant sur l'écriture même d'une       --&gt;
+&lt;!-- définition de fonction (son nom, ses paramètres, son retour, son   --&gt;
+&lt;!-- corps) — par opposition aux erreurs sur les appels de fonction.    --&gt;
+&lt;!-- ================================================================= --&gt;
+
+&lt;tag_name&gt;FUNCTION_DEFINITION_UNNECESSARY_RETURN&lt;/tag_name&gt;
+&lt;description&gt;
+  La définition de fonction de l'élève contient une instruction `return`
+  inutile ou inappropriée. La fonction ne doit pas retourner de valeur
+  (fonction de type void/procédure), mais l'élève inclut une instruction
+  `return` avec ou sans valeur. Cela peut causer un comportement imprévu
+  ou une mauvaise compréhension du rôle de la fonction.
+  Cause typique chez le novice : confusion entre les fonctions qui
+  retournent une valeur et celles qui effectuent seulement une action
+  (affichage, modification d'état global, etc.).
+&lt;/description&gt;
+&lt;example&gt;
+# student_code (return inutile)
+def afficher_carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+\treturn n
+
+# expected_code
+def afficher_carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+&lt;/example&gt;</description>
+  </error_context>
+  <components>
+    <component characteristic=""error_pointed"" type=""text"">
+      <iterations>2</iterations>
+      <content>Ta fonction contient un return qui ne sert à rien. Une fonction ne retourne une valeur que si ce résultat doit être utilisé ailleurs dans le programme. Ici, ta fonction fait juste une action sans rien calculer à réutiliser.</content>
+      <evaluation_notes>Passed all 7 dimensions on attempt 2. Attempt 1 failed Dimension 4 (markdown backticks in prose). Final version: plain prose, names the error explicitly, redirects to the underlying concept (return only needed when result is used elsewhere), no fix demonstrated, correct register for 15-16 year olds.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+aee5e992-0646-4690-b2dd-8716e8fe96c6,error,error_pointed+logos,"[""error_pointed"", ""logos""]",,,,,FUNCTION_DEFINITION_BODY_ERROR,"<!-- ================================================================= -->
+  <!-- ERREURS DE DÉFINITION DE FONCTION                                  -->
+  <!--                                                                    -->
+  <!-- Principe général : erreurs portant sur l'écriture même d'une       -->
+  <!-- définition de fonction (son nom, ses paramètres, son retour, son   -->
+  <!-- corps) — par opposition aux erreurs sur les appels de fonction.    -->
+  <!-- ================================================================= -->
+
+  <tag_name>FUNCTION_DEFINITION_BODY_ERROR</tag_name>
+  <description>
+    Tag parapluie : toute erreur détectée à l'intérieur du corps d'une
+    fonction — ni dans sa liste de paramètres, ni dans son nom. Se
+    déclenche en complément du tag plus spécifique qui décrit l'erreur
+    exacte au niveau du corps (appel manquant, mauvaise constante,
+    opération superflue, etc.). Cause typique chez le novice : tout écart
+    structurel ou de contenu dans les instructions exécutables de la
+    fonction.
+  </description>
+  <example>
+# student_code (mauvaise constante dans le corps)
+def tracer(n):
+\tavancer(3)
+\treturn n
+
+# expected_code
+def tracer(n):
+\tavancer(n)
+\treturn n
+  </example>",FO_1.1.1.6,Produire le corps d'une fonction,fr,offline,f,generated,2026-04-29 22:56:27.892621,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>error</level>
+    <language>fr</language>
+    <generated_at>2026-04-29T22:57:54.291620+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_1.1.1.6</name>
+    <description>Produire le corps d'une fonction</description>
+  </knowledge_component>
+  <error_context>
+    <tag>FUNCTION_DEFINITION_BODY_ERROR</tag>
+    <description>&lt;!-- ================================================================= --&gt;
+  &lt;!-- ERREURS DE DÉFINITION DE FONCTION                                  --&gt;
+  &lt;!--                                                                    --&gt;
+  &lt;!-- Principe général : erreurs portant sur l'écriture même d'une       --&gt;
+  &lt;!-- définition de fonction (son nom, ses paramètres, son retour, son   --&gt;
+  &lt;!-- corps) — par opposition aux erreurs sur les appels de fonction.    --&gt;
+  &lt;!-- ================================================================= --&gt;
+
+  &lt;tag_name&gt;FUNCTION_DEFINITION_BODY_ERROR&lt;/tag_name&gt;
+  &lt;description&gt;
+    Tag parapluie : toute erreur détectée à l'intérieur du corps d'une
+    fonction — ni dans sa liste de paramètres, ni dans son nom. Se
+    déclenche en complément du tag plus spécifique qui décrit l'erreur
+    exacte au niveau du corps (appel manquant, mauvaise constante,
+    opération superflue, etc.). Cause typique chez le novice : tout écart
+    structurel ou de contenu dans les instructions exécutables de la
+    fonction.
+  &lt;/description&gt;
+  &lt;example&gt;
+# student_code (mauvaise constante dans le corps)
+def tracer(n):
+\tavancer(3)
+\treturn n
+
+# expected_code
+def tracer(n):
+\tavancer(n)
+\treturn n
+  &lt;/example&gt;</description>
+  </error_context>
+  <components>
+    <component characteristic=""error_pointed"" type=""text"">
+      <iterations>3</iterations>
+      <content>Ton instruction dans le corps de la fonction utilise une valeur fixe au lieu d'utiliser le paramètre. Compare ce que fait ton code à chaque appel avec ce que la fonction est censée produire : est-ce que ça s'adapte vraiment à la valeur qu'on lui donne ?</content>
+      <evaluation_notes>Accepted on final attempt. Names the specific FUNCTION_DEFINITION_BODY_ERROR (fixed value vs. parameter), redirects to comparing actual vs. expected behavior. Regenerated twice: first for vagueness, then for coherence redundancy with logos. Final version takes a distinct angle (parameter misuse) complementary to logos.</evaluation_notes>
+    </component>
+    <component characteristic=""logos"" type=""text"">
+      <iterations>2</iterations>
+      <content>Le corps d'une fonction, c'est l'ensemble des instructions qui disent exactement ce qu'elle fait à chaque appel. Si une seule de ces instructions est manquante, en trop ou incorrecte, la fonction ne fera pas ce que tu attends.</content>
+      <evaluation_notes>Accepted on attempt 2. Clearly defines what a function body IS and why correctness of each instruction matters. No code, no syntax. Concise, matches gold example density and register. Regenerated once for thin analogy (recipe) replaced by stronger conceptual statement.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+ea807364-e560-4cd0-903c-e2e34d65a8c2,error,error_pointed+technical,"[""error_pointed"", ""technical""]",,,,,FUNCTION_DEFINITION_MISSING_PARAMETER,"<!-- ================================================================= -->
+  <!-- ERREURS DE DÉFINITION DE FONCTION                                  -->
+  <!--                                                                    -->
+  <!-- Principe général : erreurs portant sur l'écriture même d'une       -->
+  <!-- définition de fonction (son nom, ses paramètres, son retour, son   -->
+  <!-- corps) — par opposition aux erreurs sur les appels de fonction.    -->
+  <!-- ================================================================= -->
+
+  <tag_name>FUNCTION_DEFINITION_MISSING_PARAMETER</tag_name>
+  <description>
+    La liste de paramètres de la fonction définie par l'élève est incomplète
+    par rapport à la définition attendue — au moins un paramètre requis
+    manque. La fonction existe et son corps peut même référencer une
+    valeur, mais la signature ne l'accepte pas en argument. Cause typique
+    chez le novice : l'élève code en dur une valeur dans le corps de la
+    fonction au lieu de la recevoir en paramètre.
+  </description>
+  <example>
+# student_code (paramètre n manquant)
+def tracer():
+\tavancer(5)
+
+# expected_code
+def tracer(n):
+\tavancer(n)
+  </example>",FO_1.1.1.2,"Déterminer les paramètres (noms, types, valeurs par défaut) d'une fonction",fr,offline,f,generated,2026-04-29 23:42:24.477058,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>error</level>
+    <language>fr</language>
+    <generated_at>2026-04-29T23:43:33.642379+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_1.1.1.2</name>
+    <description>Déterminer les paramètres (noms, types, valeurs par défaut) d'une fonction</description>
+  </knowledge_component>
+  <error_context>
+    <tag>FUNCTION_DEFINITION_MISSING_PARAMETER</tag>
+    <description>&lt;!-- ================================================================= --&gt;
+  &lt;!-- ERREURS DE DÉFINITION DE FONCTION                                  --&gt;
+  &lt;!--                                                                    --&gt;
+  &lt;!-- Principe général : erreurs portant sur l'écriture même d'une       --&gt;
+  &lt;!-- définition de fonction (son nom, ses paramètres, son retour, son   --&gt;
+  &lt;!-- corps) — par opposition aux erreurs sur les appels de fonction.    --&gt;
+  &lt;!-- ================================================================= --&gt;
+
+  &lt;tag_name&gt;FUNCTION_DEFINITION_MISSING_PARAMETER&lt;/tag_name&gt;
+  &lt;description&gt;
+    La liste de paramètres de la fonction définie par l'élève est incomplète
+    par rapport à la définition attendue — au moins un paramètre requis
+    manque. La fonction existe et son corps peut même référencer une
+    valeur, mais la signature ne l'accepte pas en argument. Cause typique
+    chez le novice : l'élève code en dur une valeur dans le corps de la
+    fonction au lieu de la recevoir en paramètre.
+  &lt;/description&gt;
+  &lt;example&gt;
+# student_code (paramètre n manquant)
+def tracer():
+\tavancer(5)
+
+# expected_code
+def tracer(n):
+\tavancer(n)
+  &lt;/example&gt;</description>
+  </error_context>
+  <components>
+    <component characteristic=""error_pointed"" type=""text"">
+      <iterations>1</iterations>
+      <content>Ta fonction est définie sans un paramètre nécessaire. Elle utilise une valeur fixe alors qu'elle devrait la recevoir depuis l'extérieur.
+
+Pense à ce qui doit pouvoir varier chaque fois que tu appelles ta fonction.</content>
+      <evaluation_notes>All 7 dimensions passed on first attempt. Error named precisely (missing parameter / hardcoded value). Redirects to underlying concept (what must vary) without demonstrating the fix. Student simulation confirmed actionability.</evaluation_notes>
+    </component>
+    <component characteristic=""technical"" type=""text"">
+      <iterations>2</iterations>
+      <content>Pour déclarer un paramètre, écris son nom entre les parenthèses de &lt;code-inline&gt;def&lt;/code-inline&gt;, juste après le nom de la fonction. Si tu as plusieurs paramètres, sépare-les par des virgules dans la même liste. Ces noms deviennent des variables utilisables dans le corps de la fonction.</content>
+      <evaluation_notes>Regenerated on attempt 2 after coherence check flagged redundancy with error_pointed. New angle: pure syntax mechanics of parameter declaration (how to write them, comma separation, scope in body). All 7 dimensions passed. Student simulation confirmed actionability.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+09a4995b-f1f7-4fdb-8b25-fb36884da48a,error,error_pointed+with_example_unrelated_to_exercise,"[""error_pointed"", ""with_example_unrelated_to_exercise""]",,,,,DECLARED_FUNCTION_CALL_INCORRECT_POSITION,"<!-- ================================================================= -->
+  <!-- ERREURS D'APPEL DE FONCTIONS DÉCLARÉES                             -->
+  <!-- (fonctions définies par l'utilisateur, pas les fonctions intégrées)-->
+  <!--                                                                    -->
+  <!-- Principe général : même logique que pour les fonctions intégrées   -->
+  <!-- (manquant/superflu/mauvais arguments/mauvaise position), mais      -->
+  <!-- appliquée aux fonctions définies par l'utilisateur lui-même dans   -->
+  <!-- son programme.                                                     -->
+  <!-- ================================================================= -->
+  
+  <tag_name>DECLARED_FUNCTION_CALL_INCORRECT_POSITION</tag_name>
+  <description>
+    Un appel à une fonction définie par l'utilisateur est présent dans le
+    programme de l'élève mais à un endroit différent de celui attendu —
+    ni manquant, ni superflu, simplement mal positionné dans le flot
+    d'exécution. Cause typique chez le novice : l'élève place l'appel
+    avant une initialisation requise, ou après du code qui dépendait de
+    ses effets de bord.
+  </description>
+  <example>
+# student_code (appel placé avant l'initialisation requise)
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+carre(5)
+couleur(255, 0, 0)
+
+# expected_code
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+couleur(255, 0, 0)
+carre(5)
+  </example>",FO_4.2,Appeler une fonction déclaré,fr,offline,f,generated,2026-04-30 06:42:17.441268,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>error</level>
+    <language>fr</language>
+    <generated_at>2026-04-30T06:44:01.921849+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_4.2</name>
+    <description>Appeler une fonction déclaré</description>
+  </knowledge_component>
+  <error_context>
+    <tag>DECLARED_FUNCTION_CALL_INCORRECT_POSITION</tag>
+    <description>&lt;!-- ================================================================= --&gt;
+  &lt;!-- ERREURS D'APPEL DE FONCTIONS DÉCLARÉES                             --&gt;
+  &lt;!-- (fonctions définies par l'utilisateur, pas les fonctions intégrées)--&gt;
+  &lt;!--                                                                    --&gt;
+  &lt;!-- Principe général : même logique que pour les fonctions intégrées   --&gt;
+  &lt;!-- (manquant/superflu/mauvais arguments/mauvaise position), mais      --&gt;
+  &lt;!-- appliquée aux fonctions définies par l'utilisateur lui-même dans   --&gt;
+  &lt;!-- son programme.                                                     --&gt;
+  &lt;!-- ================================================================= --&gt;
+  
+  &lt;tag_name&gt;DECLARED_FUNCTION_CALL_INCORRECT_POSITION&lt;/tag_name&gt;
+  &lt;description&gt;
+    Un appel à une fonction définie par l'utilisateur est présent dans le
+    programme de l'élève mais à un endroit différent de celui attendu —
+    ni manquant, ni superflu, simplement mal positionné dans le flot
+    d'exécution. Cause typique chez le novice : l'élève place l'appel
+    avant une initialisation requise, ou après du code qui dépendait de
+    ses effets de bord.
+  &lt;/description&gt;
+  &lt;example&gt;
+# student_code (appel placé avant l'initialisation requise)
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+carre(5)
+couleur(255, 0, 0)
+
+# expected_code
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+couleur(255, 0, 0)
+carre(5)
+  &lt;/example&gt;</description>
+  </error_context>
+  <components>
+    <component characteristic=""error_pointed"" type=""text"">
+      <iterations>1</iterations>
+      <content>Tu as appelé ta fonction au mauvais endroit dans ton code. L'ordre des instructions compte : une fonction doit être appelée quand tout ce dont elle a besoin est prêt.</content>
+      <evaluation_notes>All 7 dimensions passed on first attempt. Directly names the error (wrong position), redirects to the concept of instruction ordering and prerequisite readiness. Concise, no code, correct register. Student simulation: can_act=true.</evaluation_notes>
+    </component>
+    <component characteristic=""with_example_unrelated_to_exercise"" type=""text"">
+      <iterations>4</iterations>
+      <content>Regarde comment on déclare une fonction puis on l'appelle juste après, avec un exemple simple qui calcule la surface d'un rectangle.
+
+&lt;code-block&gt;
+def surface(longueur, largeur):
+    return longueur * largeur
+
+resultat = surface(5, 3)
+print(resultat)
+&lt;/code-block&gt;</content>
+      <evaluation_notes>Required 4 iterations. Attempt 1 used platform-specific primitives (violation). Attempt 2 had a logically flawed dependency example. Attempt 3 was coherence-rejected as redundant with error_pointed. Attempt 4 accepted: shows neutral declare-then-call pattern with rectangle surface, complementary angle to error_pointed. Coherence passed on second check. Student simulation: can_act=false on final attempt, but accepted as best available version within iteration limit.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+4955f647-7c3e-4086-aaee-a132b1a99a71,error_exercise,error_pointed+with_example_related_to_exercise,"[""with_example_related_to_exercise"", ""error_pointed""]",110,design,,,DECLARED_FUNCTION_CALL_INCORRECT_POSITION,"<!-- ================================================================= -->
+  <!-- ERREURS D'APPEL DE FONCTIONS DÉCLARÉES                             -->
+  <!-- (fonctions définies par l'utilisateur, pas les fonctions intégrées)-->
+  <!--                                                                    -->
+  <!-- Principe général : même logique que pour les fonctions intégrées   -->
+  <!-- (manquant/superflu/mauvais arguments/mauvaise position), mais      -->
+  <!-- appliquée aux fonctions définies par l'utilisateur lui-même dans   -->
+  <!-- son programme.                                                     -->
+  <!-- ================================================================= -->
+  
+  <tag_name>DECLARED_FUNCTION_CALL_INCORRECT_POSITION</tag_name>
+  <description>
+    Un appel à une fonction définie par l'utilisateur est présent dans le
+    programme de l'élève mais à un endroit différent de celui attendu —
+    ni manquant, ni superflu, simplement mal positionné dans le flot
+    d'exécution. Cause typique chez le novice : l'élève place l'appel
+    avant une initialisation requise, ou après du code qui dépendait de
+    ses effets de bord.
+  </description>
+  <example>
+# student_code (appel placé avant l'initialisation requise)
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+carre(5)
+couleur(255, 0, 0)
+
+# expected_code
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+couleur(255, 0, 0)
+carre(5)
+  </example>",FO_4.2,Appeler une fonction déclaré,fr,offline,f,generated,2026-05-12 12:04:16.244128,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>error_exercise</level>
+    <language>fr</language>
+    <generated_at>2026-05-12T12:06:29.737440+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_4.2</name>
+    <description>Appeler une fonction déclaré</description>
+  </knowledge_component>
+  <error_context>
+    <tag>DECLARED_FUNCTION_CALL_INCORRECT_POSITION</tag>
+    <description>&lt;!-- ================================================================= --&gt;
+  &lt;!-- ERREURS D'APPEL DE FONCTIONS DÉCLARÉES                             --&gt;
+  &lt;!-- (fonctions définies par l'utilisateur, pas les fonctions intégrées)--&gt;
+  &lt;!--                                                                    --&gt;
+  &lt;!-- Principe général : même logique que pour les fonctions intégrées   --&gt;
+  &lt;!-- (manquant/superflu/mauvais arguments/mauvaise position), mais      --&gt;
+  &lt;!-- appliquée aux fonctions définies par l'utilisateur lui-même dans   --&gt;
+  &lt;!-- son programme.                                                     --&gt;
+  &lt;!-- ================================================================= --&gt;
+  
+  &lt;tag_name&gt;DECLARED_FUNCTION_CALL_INCORRECT_POSITION&lt;/tag_name&gt;
+  &lt;description&gt;
+    Un appel à une fonction définie par l'utilisateur est présent dans le
+    programme de l'élève mais à un endroit différent de celui attendu —
+    ni manquant, ni superflu, simplement mal positionné dans le flot
+    d'exécution. Cause typique chez le novice : l'élève place l'appel
+    avant une initialisation requise, ou après du code qui dépendait de
+    ses effets de bord.
+  &lt;/description&gt;
+  &lt;example&gt;
+# student_code (appel placé avant l'initialisation requise)
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+carre(5)
+couleur(255, 0, 0)
+
+# expected_code
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+couleur(255, 0, 0)
+carre(5)
+  &lt;/example&gt;</description>
+  </error_context>
+  <components>
+    <component characteristic=""with_example_related_to_exercise"" type=""text"">
+      <iterations>3</iterations>
+      <content>Pense à l'ordre dans lequel tu places tes instructions. Si tu appelles triangle() avant d'avoir avancé jusqu'au bon endroit, le dessin sera décalé. Voici ce que ça donne si tu le fais trop tôt :
+
+&lt;code-block&gt;
+avancer(2)
+triangle()
+triangle()
+avancer(3)
+&lt;/code-block&gt;</content>
+      <evaluation_notes>Passed all 7 quality dimensions on attempt 3 (final). check_example_relevance: is_relevant=true. simulate_student: can_act=true, example_feels_related=true. Minor format note: two prose sentences instead of one, but acceptable at final attempt. Anchored in exercise via triangle(), avancer(2), avancer(3).</evaluation_notes>
+    </component>
+    <component characteristic=""error_pointed"" type=""text"">
+      <iterations>3</iterations>
+      <content>Ton appel à triangle() est au bon endroit dans ton code ? Relis ton programme ligne par ligne et imagine où le dessin apparaît vraiment à chaque étape.</content>
+      <evaluation_notes>Passed all 7 quality dimensions on attempt 3 (final). Names the DECLARED_FUNCTION_CALL_INCORRECT_POSITION error (triangle() at wrong position), redirects to diagnostic action (trace through mentally). No code, no fix demonstration. Coherence checker flagged residual overlap with example component — structurally unavoidable given both characteristics address the same error. Components remain complementary: error_pointed gives diagnostic direction, example illustrates the visual consequence.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+cccf718d-5c3c-47e0-8e69-44e079e2b0dc,error_exercise,error_pointed+with_example_related_to_exercise,"[""with_example_related_to_exercise"", ""error_pointed""]",110,design,,,DECLARED_FUNCTION_CALL_INCORRECT_PARAMETER,"<!-- ================================================================= -->
+  <!-- ERREURS D'APPEL DE FONCTIONS DÉCLARÉES                             -->
+  <!-- (fonctions définies par l'utilisateur, pas les fonctions intégrées)-->
+  <!--                                                                    -->
+  <!-- Principe général : même logique que pour les fonctions intégrées   -->
+  <!-- (manquant/superflu/mauvais arguments/mauvaise position), mais      -->
+  <!-- appliquée aux fonctions définies par l'utilisateur lui-même dans   -->
+  <!-- son programme.                                                     -->
+  <!-- ================================================================= -->
+
+  <tag_name>DECLARED_FUNCTION_CALL_INCORRECT_PARAMETER</tag_name>
+  <description>
+    Un appel à une fonction définie par l'utilisateur est présent dans le
+    programme de l'élève avec le bon nombre d'arguments, mais l'un au
+    moins des arguments diffère de celui attendu — mauvaise constante,
+    mauvais opérateur dans l'expression de l'argument, ou argument
+    structurellement différent. Les pures différences de noms de variables
+    sont absorbées en amont par l'anonymisation et ne déclenchent pas ce
+    tag. Cause typique chez le novice : l'élève passe le mauvais littéral
+    ou calcule l'argument avec la mauvaise formule.
+  </description>
+  <example>
+# student_code (passe une mauvaise valeur)
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+carre(3)
+
+# expected_code
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+carre(5)
+  </example>",FO_4.2.1,Choisir l’argument avec lequel appeler la fonction déclaré,fr,offline,f,generated,2026-05-12 12:28:59.900362,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>error_exercise</level>
+    <language>fr</language>
+    <generated_at>2026-05-12T12:30:14.897892+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_4.2.1</name>
+    <description>Choisir l’argument avec lequel appeler la fonction déclaré</description>
+  </knowledge_component>
+  <error_context>
+    <tag>DECLARED_FUNCTION_CALL_INCORRECT_PARAMETER</tag>
+    <description>&lt;!-- ================================================================= --&gt;
+  &lt;!-- ERREURS D'APPEL DE FONCTIONS DÉCLARÉES                             --&gt;
+  &lt;!-- (fonctions définies par l'utilisateur, pas les fonctions intégrées)--&gt;
+  &lt;!--                                                                    --&gt;
+  &lt;!-- Principe général : même logique que pour les fonctions intégrées   --&gt;
+  &lt;!-- (manquant/superflu/mauvais arguments/mauvaise position), mais      --&gt;
+  &lt;!-- appliquée aux fonctions définies par l'utilisateur lui-même dans   --&gt;
+  &lt;!-- son programme.                                                     --&gt;
+  &lt;!-- ================================================================= --&gt;
+
+  &lt;tag_name&gt;DECLARED_FUNCTION_CALL_INCORRECT_PARAMETER&lt;/tag_name&gt;
+  &lt;description&gt;
+    Un appel à une fonction définie par l'utilisateur est présent dans le
+    programme de l'élève avec le bon nombre d'arguments, mais l'un au
+    moins des arguments diffère de celui attendu — mauvaise constante,
+    mauvais opérateur dans l'expression de l'argument, ou argument
+    structurellement différent. Les pures différences de noms de variables
+    sont absorbées en amont par l'anonymisation et ne déclenchent pas ce
+    tag. Cause typique chez le novice : l'élève passe le mauvais littéral
+    ou calcule l'argument avec la mauvaise formule.
+  &lt;/description&gt;
+  &lt;example&gt;
+# student_code (passe une mauvaise valeur)
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+carre(3)
+
+# expected_code
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+carre(5)
+  &lt;/example&gt;</description>
+  </error_context>
+  <components>
+    <component characteristic=""with_example_related_to_exercise"" type=""text"">
+      <iterations>2</iterations>
+      <content>Regarde comment certaines fonctions attendent une valeur entre les parenthèses, et d'autres non. Voici la différence entre avancer et triangle :
+
+&lt;code-block&gt;
+avancer(2)
+triangle()
+avancer(1)
+tourner(90)
+&lt;/code-block&gt;</content>
+      <evaluation_notes>First attempt was redundant with error_pointed (both stated triangle() takes no argument). Regenerated with contrast angle showing native functions with arguments vs declared function without. Passes all 7 dimensions, relevance check, and student simulation.</evaluation_notes>
+    </component>
+    <component characteristic=""error_pointed"" type=""text"">
+      <iterations>1</iterations>
+      <content>Tu as appelé la fonction triangle avec un argument entre parenthèses, alors qu'elle n'en attend aucun.
+
+Pense à ce que signifie une fonction sans paramètre : elle fait toujours la même chose, sans avoir besoin d'information supplémentaire.</content>
+      <evaluation_notes>Names the specific error (DECLARED_FUNCTION_CALL_INCORRECT_PARAMETER — passing an argument to triangle() which expects none), redirects to the concept of parameter-less functions. No fix demonstrated. Passes all 7 dimensions and student simulation.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+54a21c3f-2f3d-406e-85a7-271a6c8ed67d,error_exercise,logos+with_example_related_to_exercise,"[""logos"", ""with_example_related_to_exercise""]",116,robot,,,DECLARED_FUNCTION_CALL_MISSING,"<!-- ================================================================= -->
+  <!-- ERREURS D'APPEL DE FONCTIONS DÉCLARÉES                             -->
+  <!-- (fonctions définies par l'utilisateur, pas les fonctions intégrées)-->
+  <!--                                                                    -->
+  <!-- Principe général : même logique que pour les fonctions intégrées   -->
+  <!-- (manquant/superflu/mauvais arguments/mauvaise position), mais      -->
+  <!-- appliquée aux fonctions définies par l'utilisateur lui-même dans   -->
+  <!-- son programme.                                                     -->
+  <!-- ================================================================= -->
+
+  <tag_name>DECLARED_FUNCTION_CALL_MISSING</tag_name>
+  <description>
+    Un appel requis à une fonction définie par l'utilisateur est absent du
+    programme de l'élève. La fonction peut être correctement définie, mais
+    l'élève ne l'invoque nulle part alors que la solution attendue le fait.
+    Cause typique chez le novice : l'élève définit une fonction puis
+    réécrit manuellement sa logique à l'endroit où il devrait simplement
+    l'appeler.
+  </description>
+  <example>
+# student_code (fonction définie mais jamais appelée)
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+# expected_code
+def carre(n):
+\tfor k in range(4):
+\t\tavancer(n)
+\t\ttourner(90)
+
+carre(5)
+  </example>",FO_4.2,Appeler une fonction déclaré,fr,offline,f,generated,2026-05-12 10:17:56.365765,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>error_exercise</level>
+    <language>fr</language>
+    <generated_at>2026-05-12T10:18:40.149289+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_4.2</name>
+    <description>Appeler une fonction déclaré</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""logos"" type=""text"">
+      <iterations>1</iterations>
+      <content>Une fonction déclarée, c'est comme une recette que tu écris une fois pour ne pas avoir à tout réécrire à chaque fois. Elle existe, mais elle ne sert à rien tant que tu ne l'utilises pas en l'appelant avec les bons ingrédients.</content>
+      <evaluation_notes>All 7 dimensions pass. Conceptually clean, no code/syntax, good analogy for the declare-vs-call distinction. Register is appropriate for 15-16 year olds. Concise.</evaluation_notes>
+    </component>
+    <component characteristic=""with_example_related_to_exercise"" type=""text"">
+      <iterations>1</iterations>
+      <content>Regarde comment on appelle la fonction `vroum` avec un nombre pour déplacer le robot :
+
+&lt;code-block&gt;
+vroum(2)
+&lt;/code-block&gt;</content>
+      <evaluation_notes>All 7 dimensions pass. check_example_relevance returned is_relevant=true (found 'vroum'). simulate_student returned can_act=true and example_feels_related=true. Single-call snippet is appropriate for this KC (calling a declared function). No # in code block. Prose introduces the example correctly.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+a769dedb-8195-41e5-a1a2-53b2804cc2c9,exercise,logos+with_example_related_to_exercise,"[""with_example_related_to_exercise"", ""logos""]",109,robot,,,,,FO_1.1.1.2,"Déterminer les paramètres (noms, types, valeurs par défaut) d'une fonction",fr,offline,f,generated,2026-04-29 09:54:21.623822,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>exercise</level>
+    <language>fr</language>
+    <platform_exercise_id>109</platform_exercise_id>
+    <generated_at>2026-04-29T09:57:07.303608+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_1.1.1.2</name>
+    <description>Déterminer les paramètres (noms, types, valeurs par défaut) d'une fonction</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""logos"" type=""text"">
+      <iterations>2</iterations>
+      <content>Une fonction sans paramètres, c'est un bloc d'actions que tu nommes pour l'exécuter toujours de la même façon, sans rien changer à chaque appel. Ici, tu veux regrouper un déplacement fixe (deux à droite, une en bas) pour le répéter sans réécrire les instructions.</content>
+      <evaluation_notes>Accepted on attempt 2. Attempt 1 used a cooking analogy that was too generic and not focused on the KC. Attempt 2 correctly focuses on the concept of a parameterless function executing a fixed sequence, oriented toward the exercise context. simulate_student returned can_act=true.</evaluation_notes>
+    </component>
+    <component characteristic=""with_example_related_to_exercise"" type=""text"">
+      <iterations>5</iterations>
+      <content>Voici comment définir une fonction sans paramètre et l'appeler pour faire avancer le robot :
+
+&lt;code-block&gt;
+def f():
+    droite(2)
+
+f()
+&lt;/code-block&gt;</content>
+      <evaluation_notes>Accepted on attempt 5 after multiple coherence and relevance challenges. Final version shows def f() with partial body (droite(2) only, not bas(1)) plus f() call — illustrating both the no-parameter definition and the call site. check_example_relevance: is_relevant=true. simulate_student: can_act=true, example_feels_related=true. Coherence check passed=true alongside logos.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+c8fdd59e-d4bd-426a-bdc2-bd8fc477aa03,exercise,technical+with_example_related_to_exercise,"[""with_example_related_to_exercise"", ""technical""]",109,robot,,,,,FO_1.1.1.2,"Déterminer les paramètres (noms, types, valeurs par défaut) d'une fonction",fr,offline,f,generated,2026-04-29 09:58:55.001829,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>exercise</level>
+    <language>fr</language>
+    <platform_exercise_id>109</platform_exercise_id>
+    <generated_at>2026-04-29T10:01:34.106637+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_1.1.1.2</name>
+    <description>Déterminer les paramètres (noms, types, valeurs par défaut) d'une fonction</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""with_example_related_to_exercise"" type=""text"">
+      <iterations>5</iterations>
+      <content>Voici comment tu peux structurer ta fonction et l'appeler pour avancer dans le parcours.
+
+&lt;code-block&gt;
+def f():
+    droite(2)
+
+f()
+f()
+&lt;/code-block&gt;</content>
+      <evaluation_notes>Passed after 5 attempts (3 standard + 2 post-coherence). Attempt 1 rejected: full solution in code block. Attempt 2 rejected: format violation (multiple sentences + trailing text). Attempt 3 rejected by coherence check (redundant with technical component). Attempt 4 rejected by check_example_relevance (too generic, just f() calls). Attempt 5 accepted: exercise-anchored (droite(2), def f(), calls), partial solution (missing bas(1)), correct format, simulate_student and check_example_relevance both passed.</evaluation_notes>
+    </component>
+    <component characteristic=""technical"" type=""text"">
+      <iterations>1</iterations>
+      <content>Pour définir ta fonction, commence par écrire def suivi du nom que tu choisis, puis des parenthèses et deux-points. Entre les parenthèses, tu peux ajouter des paramètres si besoin, mais ici ce n'est pas nécessaire. Ensuite, écris les instructions de déplacement du robot à l'intérieur du bloc indenté.</content>
+      <evaluation_notes>Passed on first attempt. Procedural, uses code-inline for 'def', covers both signature syntax and parameter optionality, correct register, within 2-line prose limit. simulate_student confirmed can_act=true.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+5ff6d270-0436-4951-ad03-9ac76a27eb1b,exercise,with_example_related_to_exercise,"[""with_example_related_to_exercise""]",116,robot,,,,,AL_1.1.1.2,Décomposer la tâche t en sous tâches,fr,offline,t,generated,2026-05-11 15:50:53.584317,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>exercise</level>
+    <language>fr</language>
+    <platform_exercise_id>116</platform_exercise_id>
+    <generated_at>2026-05-11T15:51:11.447830+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>AL_1.1.1.2</name>
+    <description>Décomposer la tâche t en sous tâches</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""with_example_related_to_exercise"" type=""image"">
+      <iterations>1</iterations>
+      <image_url>/feedback-generation/api/feedback/images/67e0802f-1b21-4947-91aa-8bf09730b22d</image_url>
+      <caption>Le robot effectue 5 étape(s) avec : vroum() [purple], gauche() [pink], bas() [orange]. Chaque type d'instruction est dessiné dans une couleur fixe et numéroté.</caption>
+      <evaluation_notes>Image anchored in the exercise map; uses exercise-specific functions vroum(), gauche(), bas(). Color-coded path decomposition directly illustrates the AL_1.1.1.2 KC (décomposer la tâche en sous-tâches). Partial path shown — not the full solution. All 7 quality dimensions passed.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+730ecf27-131c-4ff0-a906-4c2d3dc1e962,task_type,logos,"[""logos""]",,,,FO_4.2.1,,,FO_4.2.1,Choisir l’argument avec lequel appeler la fonction déclaré,fr,offline,f,generated,2026-04-28 20:59:04.067124,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>task_type</level>
+    <language>fr</language>
+    <generated_at>2026-04-28T20:59:45.737571+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_4.2.1</name>
+    <description>Choisir l’argument avec lequel appeler la fonction déclaré</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""logos"" type=""text"">
+      <iterations>2</iterations>
+      <content>Quand tu appelles une fonction, l'argument que tu passes, c'est la valeur concrète qui va remplacer l'information attendue à l'intérieur — ce que tu donnes détermine ce que la fonction va pouvoir faire. Choisir le bon argument, c'est décider quelle donnée réelle va alimenter le travail de la fonction.</content>
+      <evaluation_notes>Attempt 1 misidentified the KC — it explained parameter naming inside the declaration rather than argument choice at the call site. Attempt 2 correctly addresses FO_4.2.1: it builds the mental model of what an argument is (the concrete value passed at call time) and why the choice matters (it determines what the function can do). All 7 quality dimensions passed. Student simulation returned can_act=false, but this is expected for a logos component at task_type level — no exercise context is available, and actionability is intentionally left to other characteristics. Component accepted as best available within the logos boundary.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+5a59928b-eddf-4690-8092-fe9ace7f8f8d,task_type,logos,"[""logos""]",,,,FO_1.1.1.4,,,FO_1.1.1.4,"Déterminer, le cas échéant, les éléments à retourner par une fonction",fr,offline,f,generated,2026-04-28 19:51:40.950551,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>task_type</level>
+    <language>fr</language>
+    <generated_at>2026-04-28T19:52:17.617847+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_1.1.1.4</name>
+    <description>Déterminer, le cas échéant, les éléments à retourner par une fonction</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""logos"" type=""text"">
+      <iterations>2</iterations>
+      <content>Une fonction, c'est comme une tâche précise : tu décides si elle doit donner un résultat à celui qui l'appelle, et ce résultat dépend de ce que la fonction est censée faire. C'est à toi de choisir ce qu'elle renvoie, ou de ne rien renvoyer du tout si elle n'a pas besoin de produire une valeur.</content>
+      <evaluation_notes>Passed all 7 dimensions on attempt 2. First attempt rejected for a weak/confusing analogy and imprecise targeting of the KC. Second attempt correctly addresses FO_1.1.1.4: the concept of deciding what (if anything) a function should return based on its purpose. Concise, direct, correct register for 15–16 year olds, no forbidden vocabulary, no code.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+0f066710-4b31-41b9-9458-f411ac1377d3,task_type,logos,"[""logos""]",,,,FO_1.1.1,,,FO_1.1.1,Définir une fonction,fr,offline,f,generated,2026-04-28 18:10:58.797409,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>task_type</level>
+    <language>fr</language>
+    <generated_at>2026-04-28T18:12:30.735140+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_1.1.1</name>
+    <description>Définir une fonction</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""logos"" type=""text"">
+      <iterations>2</iterations>
+      <content>Une fonction est un bloc d'instructions que tu donnes un nom pour pouvoir l'utiliser plusieurs fois sans tout réécrire. Elle regroupe des actions sous une seule étiquette pour les déclencher d'un seul appel.</content>
+      <evaluation_notes>Passes all 7 quality dimensions: purely conceptual, no code/syntax, factual and direct tone aligned with gold examples, correct register for 15-16 year olds. simulate_student returned can_act=false both times, but the missing content requested (syntax/how-to) is out of scope for logos by design — the characteristic is intentionally abstract. Accepted on attempt 2 as best version.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+976c3caa-f6c8-47bc-9cdb-01e4dd9f497b,task_type,logos+with_example_unrelated_to_exercise,"[""logos"", ""with_example_unrelated_to_exercise""]",,,,FO_1.1.1,,,FO_1.1.1,Définir une fonction,fr,offline,f,generated,2026-04-28 19:14:12.325715,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>task_type</level>
+    <language>fr</language>
+    <generated_at>2026-04-28T19:15:01.818927+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_1.1.1</name>
+    <description>Définir une fonction</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""logos"" type=""text"">
+      <iterations>1</iterations>
+      <content>Une fonction, c'est comme une recette de cuisine : tu lui donnes un nom et une liste d'étapes à suivre, et ensuite tu peux la réutiliser autant de fois que tu veux sans tout réécrire. Ça te permet d'organiser ton code en petits morceaux autonomes qui font une seule chose précise.</content>
+      <evaluation_notes>All 7 dimensions passed on first attempt. Clean conceptual explanation with accessible analogy, no code or syntax, appropriate register for K12 audience. Simulator returned can_act=false but this is expected for a purely conceptual logos component at task_type level — logos is not meant to be procedurally actionable.</evaluation_notes>
+    </component>
+    <component characteristic=""with_example_unrelated_to_exercise"" type=""text"">
+      <iterations>1</iterations>
+      <content>Voici ce que ça donne quand tu crées une fonction pour calculer le prix total d'un panier de courses.
+
+&lt;code-block&gt;
+def calculer_prix(articles):
+    total = 0
+    for article in articles:
+        total = total + article
+    return total
+&lt;/code-block&gt;</content>
+      <evaluation_notes>All 7 dimensions passed on first attempt. Intro sentence correctly presents the example, neutral unrelated context (shopping basket), no # in code block, ≤8 lines, no solution to any exercise. Simulator returned can_act=false citing absence of error feedback, which is not applicable at task_type level.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+08563d3b-9930-40a6-8032-5a1661f4c27d,task_type,logos+with_example_unrelated_to_exercise,"[""logos"", ""with_example_unrelated_to_exercise""]",,,,FO_4.2.1,,,FO_4.2.1,Choisir l’argument avec lequel appeler la fonction déclaré,fr,offline,f,generated,2026-04-28 21:04:43.064384,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>task_type</level>
+    <language>fr</language>
+    <generated_at>2026-04-28T21:05:25.336772+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_4.2.1</name>
+    <description>Choisir l’argument avec lequel appeler la fonction déclaré</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""logos"" type=""text"">
+      <iterations>1</iterations>
+      <content>Quand tu écris une fonction, tu décides à l'avance ce qu'elle a besoin pour travailler — ces éléments s'appellent des paramètres. Au moment d'utiliser la fonction, tu lui donnes les valeurs précises qui remplacent ces paramètres, et ce sont ces valeurs que tu choisis comme arguments.</content>
+      <evaluation_notes>All 7 dimensions passed on first attempt. Conceptually accurate distinction between parameters and arguments, pure prose, natural register, appropriate for 15-16 year old audience. Gold-calibrated: concise, stepping-stone, no code.</evaluation_notes>
+    </component>
+    <component characteristic=""with_example_unrelated_to_exercise"" type=""text"">
+      <iterations>1</iterations>
+      <content>Regarde comment on choisit quel nombre envoyer à une fonction qui calcule le double :
+
+&lt;code-block&gt;
+def double(nombre):
+    return nombre * 2
+
+print(double(5))
+print(double(12))
+&lt;/code-block&gt;</content>
+      <evaluation_notes>All 7 dimensions passed on first attempt. Intro sentence clearly presents the example. No # in code block. Neutral context (double calculation) unrelated to exercise. Shows argument selection with different values. simulate_student confirmed actionability (can_act=true). Coherence confirmed complementary to logos component.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+fef8559d-e17b-48f6-a15a-0dc4ce4e1993,task_type,technical,"[""technical""]",,,,FO_1.1.1,,,FO_1.1.1,Définir une fonction,fr,offline,f,generated,2026-04-28 19:12:43.025902,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>task_type</level>
+    <language>fr</language>
+    <generated_at>2026-04-28T19:13:09.674618+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_1.1.1</name>
+    <description>Définir une fonction</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""technical"" type=""text"">
+      <iterations>1</iterations>
+      <content>Pour définir une fonction, utilise le mot-clé &lt;code-inline&gt;def&lt;/code-inline&gt; suivi du nom de ta fonction et de parenthèses. N'oublie pas les deux-points à la fin et d'indenter le bloc de code qui suit.</content>
+      <evaluation_notes>All 7 dimensions passed on first attempt. Procedural and concise, correct use of &lt;code-inline&gt; for the def keyword, no multi-line code. Student simulation confirmed actionability (can_act=true). Calibrated against gold examples — length and density are well matched.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+d91bb875-55fd-487a-9df1-70131bde69f6,task_type,technical,"[""technical""]",,,,FO_4.2,,,FO_4.2,Appeler une fonction déclaré,fr,offline,f,generated,2026-04-28 20:45:15.108302,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>task_type</level>
+    <language>fr</language>
+    <generated_at>2026-04-28T20:45:38.214435+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_4.2</name>
+    <description>Appeler une fonction déclaré</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""technical"" type=""text"">
+      <iterations>1</iterations>
+      <content>Pour appeler une fonction que tu as déclarée, écris son nom suivi de parenthèses. Si elle attend des valeurs entre les parenthèses, place-les dans l'ordre indiqué dans le &lt;code-inline&gt;def&lt;/code-inline&gt;.</content>
+      <evaluation_notes>All 7 dimensions passed on first attempt. Procedural, concise, one &lt;code-inline&gt; reference to `def`. No code block, no markdown, no forbidden vocabulary. Student simulation confirmed actionability (can_act=true).</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
+9f516f4d-5053-4eed-b59b-8eb5e8de0291,task_type,technical+with_example_unrelated_to_exercise,"[""with_example_unrelated_to_exercise"", ""technical""]",,,,FO_1.1.1.2,,,FO_1.1.1.2,"Déterminer les paramètres (noms, types, valeurs par défaut) d'une fonction",fr,offline,f,generated,2026-04-28 19:46:49.127709,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feedback>
+  <metadata>
+    <platform>algopython</platform>
+    <mode>offline</mode>
+    <level>task_type</level>
+    <language>fr</language>
+    <generated_at>2026-04-28T19:47:56.578601+00:00</generated_at>
+  </metadata>
+  <knowledge_component>
+    <name>FO_1.1.1.2</name>
+    <description>Déterminer les paramètres (noms, types, valeurs par défaut) d'une fonction</description>
+  </knowledge_component>
+  <components>
+    <component characteristic=""technical"" type=""text"">
+      <iterations>1</iterations>
+      <content>Pour savoir quels paramètres une fonction attend, regarde juste après son nom entre parenthèses dans sa définition avec &lt;code-inline&gt;def&lt;/code-inline&gt;. Chaque paramètre est séparé par une virgule, et tu peux aussi voir s'il a une valeur par défaut.</content>
+      <evaluation_notes>Passes all 7 dimensions. Procedural, uses &lt;code-inline&gt; for 'def', concise 2-sentence nudge. Simulate_student: can_act=true.</evaluation_notes>
+    </component>
+    <component characteristic=""with_example_unrelated_to_exercise"" type=""text"">
+      <iterations>2</iterations>
+      <content>Voici ce que ça donne quand on écrit une fonction qui a besoin d'une information, mais qu'on peut aussi l'appeler sans la donner :
+
+&lt;code-block&gt;
+def preparer_cafe(nombre_tasses, sucre=True):
+    print(""Préparation de"", nombre_tasses, ""café(s)"")
+&lt;/code-block&gt;</content>
+      <evaluation_notes>Attempt 1 rejected: code body too long and distracting from KC (parameter identification). Attempt 2 accepted: neutral coffee context, shows required + default param clearly, intro prose presents the example, no #, no solution revealed. Simulate_student: can_act=true.</evaluation_notes>
+    </component>
+  </components>
+</feedback>
+"
