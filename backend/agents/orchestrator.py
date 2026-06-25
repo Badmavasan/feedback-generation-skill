@@ -319,6 +319,7 @@ class ClaudeOrchestrator:
         run_id: str | None = None,
         trace: TraceCollector | None = None,
         decomposition_hint: str | None = None,
+        ablation: dict | None = None,
     ) -> str:
         """
         Orchestrate full generation with quality evaluation loop.
@@ -332,6 +333,18 @@ class ClaudeOrchestrator:
         """
         tc = trace or TraceCollector()
         settings = self._settings
+
+        # ── Ablation config (study harness) ──────────────────────────────────
+        # ablation = {
+        #   "drop_tools": [...],            # tool names to hide from the orchestrator
+        #   "text_max_iterations": int,     # override the regeneration cap (1 = no loop)
+        #   "minimal_quality_gate": bool,   # skip the 6-dimension evaluation, accept first
+        # }
+        _abl = ablation or {}
+        text_max_iter = _abl.get("text_max_iterations") or settings.text_max_iterations
+        _drop_tools = set(_abl.get("drop_tools") or [])
+        active_tools = [t for t in ORCHESTRATOR_TOOLS if t["name"] not in _drop_tools]
+        _minimal_gate = bool(_abl.get("minimal_quality_gate"))
 
         # 1. Build platform context via RAG — or use pre-built override from generator
         generation_context = {"kc_name": kc_name, "exercise_id": exercise_id}
@@ -349,10 +362,17 @@ class ClaudeOrchestrator:
             platform_context=platform_context,
             language=language,
             max_image_iterations=settings.image_max_iterations,
-            text_max_iterations=settings.text_max_iterations,
+            text_max_iterations=text_max_iter,
             general_feedback_instructions=general_feedback_instructions or "",
             platform_config=platform_config,
         )
+        if _minimal_gate:
+            system_prompt += (
+                "\n\n## ABLATION OVERRIDE — QUALITY GATE DISABLED\n"
+                "Do NOT evaluate the six quality dimensions. Accept each generated "
+                "component on its first attempt without critique, and do not "
+                "regenerate for quality reasons. Proceed to the next required tool."
+            )
         planning_prompt = build_planning_prompt(
             platform_id=platform_id,
             mode=mode,
@@ -364,7 +384,7 @@ class ClaudeOrchestrator:
             exercise=exercise,
             error=error,
             live_context=live_context,
-            text_max_iterations=settings.text_max_iterations,
+            text_max_iterations=text_max_iter,
             has_base_image=base_image is not None,
         )
 
@@ -420,7 +440,7 @@ class ClaudeOrchestrator:
                 model=settings.orchestrator_model,
                 max_tokens=8192,
                 system=system_prompt,
-                tools=ORCHESTRATOR_TOOLS,
+                tools=active_tools,
                 messages=messages,
             )
             claude_ms = tc.elapsed_ms("claude_turn")
@@ -463,7 +483,7 @@ class ClaudeOrchestrator:
                     regen = tool_input.get("regeneration_instructions", "")
 
                     attempt_counts[char] = attempt_counts.get(char, 0) + 1
-                    is_final_attempt = attempt_counts[char] >= settings.text_max_iterations
+                    is_final_attempt = attempt_counts[char] >= text_max_iter
 
                     tc.start_timer(f"mistral_{char}")
                     result_content = await self._run_text_generation(

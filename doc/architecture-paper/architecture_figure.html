@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Feedback Generation Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  @page { size: 1400px 1112px; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #ffffff; overflow: hidden; height: 1111px; }
+  #root { width: 1400px; height: 1111px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { createRoot } = ReactDOM;
+
+const SANS = "'IBM Plex Sans', sans-serif";
+const INK = "#000000";
+
+function Badge({ x, y, n, r = 13 }) {
+  return (
+    <g>
+      <circle cx={x} cy={y} r={r} fill={INK} />
+      <text x={x} y={y + 5} textAnchor="middle" fontFamily={SANS} fontSize="14" fontWeight="700" fill="#ffffff">{n}</text>
+    </g>
+  );
+}
+
+function Box({ x, y, w, h, n, title, lines, fill = "#ffffff", sw = 1.5, fs = 14.5, lh = 22 }) {
+  return (
+    <g>
+      <rect x={x} y={y} width={w} height={h} fill={fill} stroke={INK} strokeWidth={sw} />
+      <Badge x={x + 24} y={y + 26} n={n} />
+      <text x={x + 46} y={y + 31} fontFamily={SANS} fontSize="15.5" fontWeight="700" fill={INK}>{title}</text>
+      {lines.map((l, i) => (
+        <text key={i} x={x + 16} y={y + 62 + i * lh} fontFamily={SANS} fontSize={fs} fontWeight="600" fill={INK}>{l}</text>
+      ))}
+    </g>
+  );
+}
+
+function Arrow({ x1, y1, x2, y2, label, labelDy = -9, double = false, sw = 1.7 }) {
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  return (
+    <g>
+      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={INK} strokeWidth={sw}
+            markerEnd="url(#arrow)" markerStart={double ? "url(#arrowrev)" : undefined} />
+      {label && (
+        <text x={mx} y={my + labelDy} textAnchor="middle" fontFamily={SANS}
+              fontSize="12.5" fontStyle="italic" fontWeight="600" fill={INK}>{label}</text>
+      )}
+    </g>
+  );
+}
+
+/* vertical workflow column of chips (1 or 2 centred lines each) */
+function VColumn({ x, w, y0, label, steps, chipH = 52, gap = 22 }) {
+  return (
+    <g>
+      <text x={x + w / 2} y={y0 - 14} textAnchor="middle" fontFamily={SANS} fontSize="13.5"
+            fontWeight="700" letterSpacing="2" fill={INK}>{label}</text>
+      {steps.map((s, i) => {
+        const lines = Array.isArray(s) ? s : [s];
+        const cy = y0 + i * (chipH + gap);
+        return (
+          <g key={i}>
+            <rect x={x} y={cy} width={w} height={chipH} rx={13} fill="#f5f5f5" stroke={INK} strokeWidth={1.1} />
+            {lines.length === 1 ? (
+              <text x={x + w / 2} y={cy + chipH / 2 + 5} textAnchor="middle" fontFamily={SANS}
+                    fontSize="13.5" fontWeight="600" fill={INK}>{lines[0]}</text>
+            ) : (
+              lines.map((l, j) => (
+                <text key={j} x={x + w / 2} y={cy + chipH / 2 - 4 + j * 18} textAnchor="middle"
+                      fontFamily={SANS} fontSize="13.5" fontWeight="600" fill={INK}>{l}</text>
+              ))
+            )}
+            {i < steps.length - 1 && (
+              <line x1={x + w / 2} y1={cy + chipH + 3} x2={x + w / 2} y2={cy + chipH + gap - 3}
+                    stroke={INK} strokeWidth={1.4} markerEnd="url(#arrowS)" />
+            )}
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+function Figure() {
+  return (
+    <svg viewBox="0 0 1400 1112" width="1400" height="1112">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill={INK} />
+        </marker>
+        <marker id="arrowrev" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 10 0 L 0 5 L 10 10 z" fill={INK} />
+        </marker>
+        <marker id="arrowS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill={INK} />
+        </marker>
+      </defs>
+
+      {/* ════ Row 1 — request workflow ════ */}
+      <Box x={30} y={40} w={240} h={130} n={1} title="API layer"
+           lines={["Receives the request", "Authenticates the caller", "Validates what is asked"]} />
+      <Arrow x1={270} y1={102} x2={318} y2={102} label="request" />
+
+      <Box x={320} y={40} w={270} h={152} n={2} title="Knowledge base (RAG)"
+           lines={["•  Pedagogical guidelines", "•  Tone & style rules", "•  Curriculum & primitives", "•  Exercises + solutions"]} />
+      <Arrow x1={590} y1={102} x2={638} y2={102} label="context" />
+
+      <Box x={640} y={40} w={430} h={182} n={3} title="Orchestrator" fill="#efefef" sw={2.8}
+           lines={["1.  Plans the feedback components",
+                   "2.  Invokes the specialised agents",
+                   "3.  Evaluates every result (quality gate)",
+                   "4.  Requests regeneration with critique",
+                   "5.  Assembles the final response"]} />
+      <Arrow x1={1070} y1={102} x2={1118} y2={102} />
+
+      <Box x={1120} y={40} w={250} h={130} n={9} title="Response builder"
+           lines={["Packages all accepted", "components into one", "structured response"]} />
+      <Arrow x1={1245} y1={170} x2={1245} y2={218} />
+      <text x={1245} y={241} textAnchor="middle" fontFamily={SANS} fontSize="13.5" fontStyle="italic" fontWeight="600" fill={INK}>
+        final feedback</text>
+
+      {/* ════ Orchestrator ⇄ agents frame ════ */}
+      <Arrow x1={855} y1={222} x2={855} y2={298} double sw={2.2} />
+      <text x={872} y={264} fontFamily={SANS} fontSize="13" fontStyle="italic" fontWeight="600" fill={INK}>calls / results</text>
+
+      <rect x={30} y={300} width={1340} height={758} fill="none" stroke={INK} strokeWidth={1.1} strokeDasharray="7 5" />
+      <rect x={52} y={292} width={396} height={16} fill="#ffffff" />
+      <text x={60} y={305} fontFamily={SANS} fontSize="12.5" fontWeight="700" letterSpacing="2" fill={INK}>
+        SPECIALISED AGENTS — INVOKED AS TOOLS</text>
+
+      {/* ── text validation workflow: 4 → 5 → 6 → 7 ── */}
+      <Box x={60} y={350} w={305} h={154} n={4} title="Text generation"
+           lines={["Writes one short feedback", "text from the context —", "a single nudge, never", "the full solution"]} />
+      <Arrow x1={365} y1={426} x2={389} y2={426} />
+      <Box x={389} y={350} w={305} h={154} n={5} title="Relevance check"
+           lines={["•  Example tied to this exercise", "•  Consistent with the solution", "•  Illustrates the targeted notion", "•  Characteristic respected"]} />
+      <Arrow x1={694} y1={426} x2={718} y2={426} />
+      <Box x={718} y={350} w={305} h={154} n={6} title="Student simulation"
+           lines={["An agent plays the K12", "student receiving the", "feedback and reports whether", "the student can act on it"]} />
+      <Arrow x1={1023} y1={426} x2={1047} y2={426} />
+      <Box x={1047} y={350} w={305} h={154} n={7} title="Coherence check"
+           lines={["If a feedback has multiple", "lines or characteristics,", "checks the coherence between", "its different components"]} />
+      <text x={1035} y={340} textAnchor="middle" fontFamily={SANS} fontSize="12.5" fontStyle="italic" fontWeight="600" fill={INK}>
+        runs once, after all accepted</text>
+
+      {/* regeneration loop: 5, 6, 7 → 4 */}
+      <g stroke={INK} strokeWidth={1.4} strokeDasharray="5 4" fill="none">
+        <line x1={541} y1={504} x2={541} y2={540} />
+        <line x1={870} y1={504} x2={870} y2={540} />
+        <line x1={1199} y1={504} x2={1199} y2={540} />
+        <path d="M 1199 540 L 212 540 L 212 510" markerEnd="url(#arrowS)" />
+      </g>
+      <text x={706} y={563} textAnchor="middle" fontFamily={SANS} fontSize="13.5" fontStyle="italic" fontWeight="600" fill={INK}>
+        any failed check → regenerate with critique</text>
+
+      {/* ── image pipeline ── */}
+      <rect x={60} y={585} width={1290} height={445} fill="#ffffff" stroke={INK} strokeWidth={1.5} />
+      <Badge x={84} y={611} n={8} />
+      <text x={106} y={616} fontFamily={SANS} fontSize="15.5" fontWeight="700" fill={INK}>
+        Image pipeline — depends on the exercise type</text>
+
+      <VColumn x={90} w={470} y0={662} label="ROBOT"
+               steps={[["Screenshot of the map along with", "the initial position of the robot"],
+                       ["Vision model locates the grid", "and returns its coordinates"],
+                       ["Coordinates fed to pre-built", "path-tracing functions"],
+                       ["Correct path drawn onto the screenshot", "(Python Imaging Library)"],
+                       ["Guard: retry if the image did not change"]]} />
+
+      <VColumn x={585} w={425} y0={662} label="DESIGN"
+               steps={[["Screenshot of the pattern to draw,", "analyzed along with the correct solution"],
+                       ["Image model decides what", "to draw, step by step"],
+                       ["Image model draws the", "decomposition image"]]} />
+
+      {/* shared image check (robot + design) */}
+      <g>
+        <rect x={1035} y={700} width={305} height={158} fill="#efefef" stroke={INK} strokeWidth={2} />
+        <text x={1051} y={728} fontFamily={SANS} fontSize="15" fontWeight="700" fill={INK}>Orchestrator checks</text>
+        <text x={1051} y={748} fontFamily={SANS} fontSize="15" fontWeight="700" fill={INK}>the produced image</text>
+        <text x={1051} y={776} fontFamily={SANS} fontSize="13.5" fontWeight="600" fill={INK}>Checks that:</text>
+        <text x={1051} y={798} fontFamily={SANS} fontSize="13.5" fontWeight="600" fill={INK}>•  All arrows are visible</text>
+        <text x={1051} y={818} fontFamily={SANS} fontSize="13.5" fontWeight="600" fill={INK}>•  Every arrow is one-way</text>
+        <text x={1051} y={838} fontFamily={SANS} fontSize="13.5" fontWeight="600" fill={INK}>•  Image matches the computed steps</text>
+      </g>
+
+      {/* design column → check box */}
+      <Arrow x1={1010} y1={836} x2={1031} y2={836} sw={1.5} />
+      {/* robot column → check box (around the bottom) */}
+      <path d="M 325 1010 L 325 1014 L 1187 1014 L 1187 862" fill="none" stroke={INK} strokeWidth={1.5} markerEnd="url(#arrow)" />
+      <line x1={325} y1={994} x2={325} y2={1014} stroke={INK} strokeWidth={1.5} />
+
+      {/* ════ legend ════ */}
+      <g>
+        <line x1={450} y1={1086} x2={490} y2={1086} stroke={INK} strokeWidth={1.7} markerEnd="url(#arrow)" />
+        <text x={498} y={1091} fontFamily={SANS} fontSize="13" fontWeight="600" fill={INK}>data flow</text>
+        <line x1={600} y1={1086} x2={640} y2={1086} stroke={INK} strokeWidth={1.7} markerEnd="url(#arrow)" markerStart="url(#arrowrev)" />
+        <text x={648} y={1091} fontFamily={SANS} fontSize="13" fontWeight="600" fill={INK}>agent call / result</text>
+        <line x1={794} y1={1086} x2={834} y2={1086} stroke={INK} strokeWidth={1.4} strokeDasharray="5 4" markerEnd="url(#arrowS)" />
+        <text x={842} y={1091} fontFamily={SANS} fontSize="13" fontWeight="600" fill={INK}>regeneration</text>
+      </g>
+    </svg>
+  );
+}
+
+createRoot(document.getElementById("root")).render(<Figure />);
+</script>
+</body>
+</html>
